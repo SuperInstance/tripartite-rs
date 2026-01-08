@@ -1,0 +1,42 @@
+@startuml Dependency Graph
+
+!define SYNESIS #0066CC
+!define EXTERNAL #666666
+
+package "SuperInstance Ecosystem" {
+  [synesis-cli] as CLI SYNESIS
+  [synesis-core] as CORE SYNESIS
+  [synesis-privacy] as PRIVACY SYNESIS
+  [synesis-knowledge] as KNOWLEDGE SYNESIS
+  [synesis-models] as MODELS SYNESIS
+  [synesis-cloud] as CLOUD SYNESIS
+}
+
+package "External Dependencies" {
+  [tokio] as TOKIO EXTERNAL
+  [rusqlite] as SQLITE EXTERNAL
+  [notify] as NOTIFY EXTERNAL
+  [quinn] as QUINN EXTERNAL
+}
+
+CLI --> CORE
+CLI --> KNOWLEDGE
+CLI --> PRIVACY
+CLI --> MODELS
+CLI --> CLOUD
+
+CORE --> PRIVACY
+CORE --> KNOWLEDGE
+CORE --> MODELS
+
+CLOUD --> PRIVACY
+CLOUD --> CORE
+
+KNOWLEDGE --> PRIVACY
+
+CORE ..> TOKIO : uses
+PRIVACY ..> SQLITE : uses
+KNOWLEDGE ..> NOTIFY : uses
+CLOUD ..> QUINN : uses
+
+@enduml

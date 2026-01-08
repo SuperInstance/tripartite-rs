@@ -1,0 +1,40 @@
+digraph SuperInstanceEcosystem {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+
+    // Internal nodes
+    cli [label="synesis-cli", fillcolor="#0066cc", style="filled,rounded", fontcolor="white"];
+    core [label="synesis-core", fillcolor="#0066cc", style="filled,rounded", fontcolor="white"];
+    privacy [label="synesis-privacy", fillcolor="#0066cc", style="filled,rounded", fontcolor="white"];
+    knowledge [label="synesis-knowledge", fillcolor="#0066cc", style="filled,rounded", fontcolor="white"];
+    models [label="synesis-models", fillcolor="#0066cc", style="filled,rounded", fontcolor="white"];
+    cloud [label="synesis-cloud", fillcolor="#0066cc", style="filled,rounded", fontcolor="white"];
+
+    // External nodes
+    tokio [label="tokio", fillcolor="#666666", style="filled,rounded", fontcolor="white"];
+    rusqlite [label="rusqlite", fillcolor="#666666", style="filled,rounded", fontcolor="white"];
+    notify [label="notify", fillcolor="#666666", style="filled,rounded", fontcolor="white"];
+    quinn [label="quinn", fillcolor="#666666", style="filled,rounded", fontcolor="white"];
+
+    // Internal dependencies
+    cli -> core;
+    cli -> knowledge;
+    cli -> privacy;
+    cli -> models;
+    cli -> cloud;
+
+    core -> privacy;
+    core -> knowledge;
+    core -> models;
+
+    cloud -> privacy;
+    cloud -> core;
+
+    knowledge -> privacy;
+
+    // External dependencies
+    core -> tokio [style=dashed, label="uses"];
+    privacy -> rusqlite [style=dashed, label="uses"];
+    knowledge -> notify [style=dashed, label="uses"];
+    cloud -> quinn [style=dashed, label="uses"];
+}

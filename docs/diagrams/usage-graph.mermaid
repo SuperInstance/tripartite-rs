@@ -1,0 +1,22 @@
+graph LR
+    %% Styles
+    classDef user fill:#00cc66,stroke:#009944,color:#fff
+    classDef tool fill:#0066cc,stroke:#004499,color:#fff
+
+    %% Nodes
+    ENDUSER[End User]
+    DEV[Developer]
+    CLI[CLI Tool]
+
+    ENDUSER -->|uses| CLI
+    DEV -->|integrates| CORE[synesis-core]
+    DEV -->|integrates| PRIVACY[synesis-privacy]
+    DEV -->|integrates| KNOWLEDGE[synesis-knowledge]
+
+    CLI -->|uses| CORE
+    CLI -->|uses| PRIVACY
+    CLI -->|uses| KNOWLEDGE
+
+    %% Apply styles
+    class ENDUSER,DEV user
+    class CLI,CORE,PRIVACY,KNOWLEDGE tool

@@ -1,112 +1,893 @@
-# SuperInstance AI - Complete Development Guide
+# SuperInstance AI - Ecosystem Development Guide
 
 > **Current Status**: Multi-Interface Expansion Phase (2026-01-08)
 > **Tests**: 298/298 passing (100%)
 > **Repository**: https://github.com/SuperInstance/Tripartite1
 > **Version**: v0.2.0
+> **Strategy**: Tools First, Applications Second
 
 ---
 
 ## Executive Summary
 
-SuperInstance is a **modular, multi-interface AI platform** with a privacy-first, local-first architecture. The system uses a **tripartite consensus system** (Pathos, Logos, Ethos) and is designed as both a standalone application AND a collection of independent, reusable tools.
+SuperInstance is a **tool ecosystem for building AI-powered applications**, not just a single application. We build independent, reusable tools that work alone or combine into powerful applications.
 
-**Core Philosophy**: "Build once, deploy everywhere." Each component is designed to work independently or as part of the larger ecosystem.
+**Core Philosophy**: "Build tools, assemble applications."
+
+**Our Approach**:
+1. **Independent Tools**: Each tool is valuable on its own
+2. **Cross-Integration**: Tools showcase each other ("Used by", "Requires", "Complementary to")
+3. **User Choice**: Users assemble their stack from our tools
+4. **Applications as Compositions**: UIs are thin layers over our tools
+
+**The Value Proposition**: Developers get composable AI infrastructure; users get privacy-first, local-first AI with optional cloud power.
 
 ---
 
 ## Table of Contents
 
-1. [Architecture Overview](#architecture-overview)
-2. [User Interfaces](#user-interfaces)
-3. [Plug-and-Play AI Tool Integration](#plug-and-play-ai-tool-integration)
-4. [Independent Standalone Tools](#independent-standalone-tools)
-5. [Development Methodology](#development-methodology)
-6. [Current Status](#current-status)
-7. [Quick Reference](#quick-reference)
+1. [Ecosystem Overview](#ecosystem-overview)
+2. [Independent Tool Repositories](#independent-tool-repositories)
+3. [SuperInstance Core](#superinstance-core)
+4. [UI Architectures](#ui-architectures)
+5. [Development Workflow](#development-workflow)
+6. [Tool Repository Template](#tool-repository-template)
+7. [Ecosystem Governance](#ecosystem-governance)
+8. [Quick Reference](#quick-reference)
 
 ---
 
-## Architecture Overview
+## Ecosystem Overview
 
-### System Architecture Diagram
+### The Tool-First Philosophy
+
+```
+Traditional Approach:
+┌─────────────────────────────────────┐
+│     One Giant Application            │
+│  ┌─────────┬─────────┬─────────┐   │
+│  │ Feature │ Feature │ Feature │   │
+│  │   A     │   B     │   C     │   │
+│  └─────────┴─────────┴─────────┘   │
+│         │       │       │          │
+│         └───────┴───────┘          │
+│           Monolithic Core           │
+└─────────────────────────────────────┘
+Problems: Hard to reuse, tightly coupled, all-or-nothing
+
+
+SuperInstance Approach:
+┌─────────────────────────────────────────────────────┐
+│              Tool Ecosystem                          │
+│                                                      │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐         │
+│  │   Tool   │  │   Tool   │  │   Tool   │         │
+│  │     A    │  │     B    │  │     C    │         │
+│  │          │  │          │  │          │         │
+│  │  Used by │  │Requires  │  │Complement│         │
+│  │  B, C, D │  │   A, E   │  │    A, B  │         │
+│  └──────────┘  └──────────┘  └──────────┘         │
+│       │             │             │                │
+│       └─────────────┴─────────────┘                │
+│                     │                               │
+│              Users Assemble                        │
+│              Their Stack                           │
+│                                                      │
+│  ┌─────────────────────────────────────┐          │
+│  │  Applications (Thin Composition     │          │
+│  │              Layers)                │          │
+│  │  ┌──────┐  ┌──────┐  ┌──────┐      │          │
+│  │  │ CLI  │  │ Web  │  │Desktop│     │          │
+│  │  └──────┘  └──────┘  └──────┘      │          │
+│  └─────────────────────────────────────┘          │
+└─────────────────────────────────────────────────────┘
+Benefits: Reusable, composable, flexible adoption
+```
+
+### Ecosystem Map
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                    USER INTERFACE LAYER                       │
-│  ┌──────────┐  ┌───────────┐  ┌────────┐  ┌──────────┐  │
-│  │   CLI    │  │   Web     │  │Desktop│  │  VS Code  │  │
-│  │(Rust CLI)│  │(Next.js)  │ │(Tauri) │  │Extension │  │
-│  └─────┬────┘  └─────┬─────┘  └──┬─────┘  └────┬─────┘  │
-└────────┼───────────┼───────────┼────────┼──────────┘
-         │           │           │        │
-┌────────▼───────────▼───────────▼────────▼──────────▼───────┐
-│              SuperInstance Core Hub (Rust)                     │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐                            │
-│  │ PATHOS  │  │  LOGOS  │  │  ETHOS  │  ← Tripartite Council    │
-│  │ (Intent)│  │ (Logic) │  │ (Truth) │                            │
-│  └────┬────┘  └────┬────┘  └────┬────┘                            │
-│       └───────────┼───────────┘                               │
-│                   ▼                                              │
-│         ┌─────────────────┐                                     │
-│         │ Consensus Engine│ ← Weighted voting (0.85 threshold)     │
-│         └────────┬────────┘                                     │
-│                   │                                              │
-│  ┌──────────────────┼───────────────────┐                       │
-│  ▼               ▼                       ▼                       │
-│  ┌────────┐   ┌────────┐           ┌───────┐                      │
-│  │Privacy │   │Knowledge│           │Model  │                      │
-│  │ Proxy  │   │ Vault   │           │Manager│                      │
-│  └────────┘   └────────┘           └───────┘                      │
+│                    SUPERINSTANCE ECOSYSTEM                    │
 │                                                                │
-│  ┌─────────────────────────────────────────────────────────────┐  │
-│  │            Plug-and-Play Tool Integration Layer             │  │
-│  │  ┌────────┐  ┌──────────┐  ┌──────┐  ┌─────────┐           │  │
-│  │  │ Ollama │  │LM Studio │  │vLLM  │  │LocalAI  │           │  │
-│  │  └────┬───┘  └────┬───────┘  └──┬───┘  └────┬─────┘           │  │
-│  │     │         │            │      │        │               │  │
-│  │  ┌──▼─────────▼────────────▼───▼──────▼─────────────────┐   │  │
-│  │  │    OpenAI-Compatible API Layer (abstraction)       │   │  │
-│  │  └──────────────────────┬────────────────────────────┘   │  │
-│  │                         │                                 │  │
-│  │  ┌─────────────────────▼─────────────────────────────┐   │  │
-│  │  │     Core SuperInstance (synesis-core)              │   │  │
-│  │  └────────────────────────────────────────────────────┘   │  │
-│  └───────────────────────────────────────────────────────────────┘│
-└────────────────────────────────────────────────────────────────────┘
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │              Core Infrastructure Tools                 │  │
+│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐      │  │
+│  │  │ Privacy   │  │ Knowledge  │  │  QUIC      │      │  │
+│  │  │ Proxy     │  │ Vault      │  │ Tunnel     │      │  │
+│  │  └────────────┘  └────────────┘  └────────────┘      │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                                 │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │              AI Processing Tools                       │  │
+│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐      │  │
+│  │  │ Consensus  │  │ Hardware   │  │ Model      │      │  │
+│  │  │ Engine     │  │ Detector   │  │ Registry   │      │  │
+│  │  └────────────┘  └────────────┘  └────────────┘      │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                                 │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │              Integration Tools                         │  │
+│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐      │  │
+│  │  │ Ollama     │  │ LM Studio  │  │ LocalAI    │      │  │
+│  │  │ Bridge     │  │ Bridge     │  │ Adapter    │      │  │
+│  │  └────────────┘  └────────────┘  └────────────┘      │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                                 │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │              Business Logic Tools                      │  │
+│  │  ┌────────────┐  ┌────────────┐                       │  │
+│  │  │ Billing    │  │ Token      │                       │  │
+│  │  │ System     │  │ Vault      │                       │  │
+│  │  └────────────┘  └────────────┘                       │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                                 │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │              Application Layers (Thin)                 │  │
+│  │  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐   │  │
+│  │  │ CLI  │  │ Web  │  │Desktop│  │VSCode│  │Mobile│   │  │
+│  │  └──────┘  └──────┘  └──────┘  └──────┘  └──────┘   │  │
+│  └────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-### Design Principles
+### Tool Relationship Example
 
-1. **Modularity**: Each component can work independently
-2. **Pluggability**: Easy to swap backends (Ollama vs llama.cpp vs local)
-3. **Privacy-First**: Sensitive data never leaves device without consent
-4. **Local-First**: Full functionality without internet
-5. **Open Standards**: Use OpenAI-compatible APIs where possible
-6. **Cross-Platform**: Windows, macOS, Linux, iOS, Android
-
----
-
-## User Interfaces
-
-### UI Overview Matrix
-
-| Interface | Status | Priority | Use Case | Technology Stack |
-|-----------|--------|----------|----------|-----------------|
-| **CLI** | ✅ Complete | P0 | Developers, power users | Rust CLI |
-| **Web Dashboard** | 🔄 Planned | P1 | General users, teams | Next.js + Rust |
-| **Desktop App** | 🔄 Planned | P1 | Privacy-focused users | Tauri + React |
-| **VS Code Extension** | 🔄 Planned | P1 | Developers | TypeScript + WASM |
-| **Mobile SDK** | 🔄 Planned | P2 | On-the-go users | Flutter |
+```
+Privacy Proxy Tool
+├── Used by:
+│   ├── Knowledge Vault (redact before indexing)
+│   ├── Consensus Engine (protect sensitive inputs)
+│   ├── Cloud Escalation (redact before sending)
+│   └── [Your Application]
+│
+├── Requires:
+│   └── Token Vault (secure token storage)
+│
+└── Complementary tools:
+    ├── Billing System (track redaction operations)
+    └── Hardware Detector (optimize for system resources)
+```
 
 ---
 
-## 1. CLI (Command-Line Interface) ✅ COMPLETE
+## Independent Tool Repositories
 
-**Status**: Production Ready
-**Documentation**: [docs/CLI_USER_GUIDE.md](docs/CLI_USER_GUIDE.md) (NEW)
+### Core Infrastructure Tools
+
+#### 1. Privacy Proxy (Redaction System) 🛡️
+
+**Repository**: `https://github.com/SuperInstance/privacy-proxy`
+
+**Purpose**: Redact PII, secrets, and sensitive data with reversible tokenization.
+
+**Key Features**:
+- 18+ built-in redaction patterns (email, phone, SSN, API keys, etc.)
+- Reversible via token vault
+- Stream processing support
+- Zero-copy architecture
+
+**Used By**:
+- Knowledge Vault (redact before indexing)
+- Cloud Escalation (redact before cloud transmission)
+- Consensus Engine (protect sensitive inputs)
+- Any application needing PII protection
+
+**Requires**:
+- Token Vault
+
+**Complementary Tools**:
+- Billing System (track redaction operations)
+- Hardware Detector (optimize for system resources)
+
+**Quick Start**:
+```bash
+# Install
+cargo install privacy-proxy
+
+# Redact text
+privacy-proxy redact "Contact john@example.com" --vault vault.db
+
+# Server mode (microservice)
+privacy-proxy server --port 8080
+```
+
+**Documentation**: [docs/PRIVACY_PROXY_TOOL.md](docs/PRIVACY_PROXY_TOOL.md)
+
+---
+
+#### 2. Knowledge Vault (RAG System) 📚
+
+**Repository**: `https://github.com/SuperInstance/knowledge-vault`
+
+**Purpose**: Local-first RAG system with vector search and semantic understanding.
+
+**Key Features**:
+- SQLite-VSS integration (portable vector database)
+- BGE-Micro embeddings (384 dimensions)
+- File watcher auto-indexing
+- Semantic search with scoring
+- Chunk extraction with metadata
+
+**Used By**:
+- SuperInstance CLI (knowledge base)
+- Web Dashboard (document browser)
+- VS Code Extension (codebase assistant)
+- Document management systems
+
+**Requires**:
+- Nothing (standalone)
+
+**Complementary Tools**:
+- Privacy Proxy (redact before indexing)
+- Hardware Detector (optimize embedding performance)
+- Model Registry (manage embedding models)
+
+**Quick Start**:
+```bash
+# Install
+cargo install knowledge-vault
+
+# Initialize vault
+knowledge-vault init ./my-knowledge
+
+# Add documents
+knowledge-vault add ./docs/ --recursive
+
+# Search
+knowledge-vault search "How does authentication work?"
+```
+
+**Documentation**: [docs/KNOWLEDGE_VAULT_TOOL.md](docs/KNOWLEDGE_VAULT_TOOL.md)
+
+---
+
+#### 3. QUIC Tunnel 🚇
+
+**Repository**: `https://github.com/SuperInstance/quic-tunnel`
+
+**Purpose**: Secure, low-latency bidirectional streaming with QUIC protocol.
+
+**Key Features**:
+- mTLS authentication
+- Bidirectional streaming
+- Connection pooling
+- Automatic reconnection
+- Heartbeat & telemetry
+
+**Used By**:
+- Cloud Escalation (secure tunnel to cloud)
+- Remote device access
+- Microservice mesh
+- Real-time streaming applications
+
+**Requires**:
+- Nothing (standalone)
+
+**Complementary Tools**:
+- Privacy Proxy (redact before transmission)
+- Billing System (track bandwidth usage)
+
+**Quick Start**:
+```bash
+# Install
+cargo install quic-tunnel
+
+# Start client
+quic-tunnel client --server tunnel.superinstance.ai:443
+
+# Start server
+quic-tunnel server --port 443 --cert cert.pem --key key.pem
+```
+
+**Documentation**: [docs/QUIC_TUNNEL_TOOL.md](docs/QUIC_TUNNEL_TOOL.md)
+
+---
+
+### AI Processing Tools
+
+#### 4. Consensus Engine 🤝
+
+**Repository**: `https://github.com/SuperInstance/consensus-engine`
+
+**Purpose**: Multi-agent voting system for decision-making and quality assurance.
+
+**Key Features**:
+- Pluggable agents
+- Configurable thresholds
+- Multi-round negotiation
+- Weighted voting
+- Timeout handling
+
+**Used By**:
+- SuperInstance Core (tripartite council)
+- Security approval systems
+- Financial trading systems
+- Medical diagnosis support
+
+**Requires**:
+- Nothing (standalone)
+
+**Complementary Tools**:
+- Privacy Proxy (protect agent inputs)
+- Billing System (track consensus operations)
+
+**Quick Start**:
+```bash
+# Install
+cargo install consensus-engine
+
+# Run consensus
+consensus-engine decide --config consensus.yaml --input request.json
+```
+
+**Documentation**: [docs/CONSENSUS_ENGINE_TOOL.md](docs/CONSENSUS_ENGINE_TOOL.md)
+
+---
+
+#### 5. Hardware Detector 🔧
+
+**Repository**: `https://github.com/SuperInstance/hw-detect`
+
+**Purpose**: Cross-platform hardware detection and capability assessment.
+
+**Key Features**:
+- CPU detection (cores, features)
+- GPU detection (VRAM, CUDA, Metal)
+- RAM analysis
+- Model recommendations
+- JSON export
+
+**Used By**:
+- SuperInstance CLI (auto-configuration)
+- Model Registry (match hardware to models)
+- Game launchers
+- DevOps tools
+
+**Requires**:
+- Nothing (standalone)
+
+**Complementary Tools**:
+- Model Registry (recommend models)
+- Knowledge Vault (optimize embeddings)
+
+**Quick Start**:
+```bash
+# Install
+cargo install hw-detect
+
+# Detect hardware
+hw-detect
+
+# JSON output
+hw-detect --json > hardware.json
+
+# Recommendations
+hw-detect recommend
+```
+
+**Documentation**: [docs/HARDWARE_DETECTOR_TOOL.md](docs/HARDWARE_DETECTOR_TOOL.md)
+
+---
+
+#### 6. Model Registry 📦
+
+**Repository**: `https://github.com/SuperInstance/model-registry`
+
+**Purpose**: Model versioning, management, and marketplace functionality.
+
+**Key Features**:
+- Model metadata storage
+- Version tracking
+- Download management
+- Hardware compatibility
+- Search & filtering
+
+**Used By**:
+- SuperInstance CLI (model management)
+- Ollama Bridge (model discovery)
+- LM Studio Bridge (model discovery)
+- MLOps platforms
+
+**Requires**:
+- Hardware Detector (compatibility checks)
+
+**Complementary Tools**:
+- Knowledge Vault (store model docs)
+- Billing System (track model usage)
+
+**Quick Start**:
+```bash
+# Install
+cargo install model-registry
+
+# Register model
+model-registry register --name "Phi-3 Mini" --version "2.6"
+
+# Download model
+model-registry download phi-3-mini
+
+# List models
+model-registry list --tag "small"
+```
+
+**Documentation**: [docs/MODEL_REGISTRY_TOOL.md](docs/MODEL_REGISTRY_TOOL.md)
+
+---
+
+### Integration Tools
+
+#### 7. Ollama Bridge 🦙
+
+**Repository**: `https://github.com/SuperInstance/ollama-bridge`
+
+**Purpose**: Integration with Ollama local model server.
+
+**Key Features**:
+- OpenAI-compatible API
+- Model management
+- GPU acceleration
+- Multi-model support
+
+**Used By**:
+- SuperInstance Core (local inference backend)
+- Any application needing local LLMs
+
+**Requires**:
+- Ollama (external dependency)
+
+**Complementary Tools**:
+- Model Registry (model discovery)
+- Hardware Detector (GPU detection)
+
+**Quick Start**:
+```bash
+# Install
+cargo install ollama-bridge
+
+# Pull and use Ollama models
+ollama-bridge pull llama3:70b
+ollama-bridge generate "Explain quantum computing"
+```
+
+**Documentation**: [tools/OLLAMA_INTEGRATION.md](tools/OLLAMA_INTEGRATION.md)
+
+---
+
+#### 8. LM Studio Bridge 🎨
+
+**Repository**: `https://github.com/SuperInstance/lmstudio-bridge`
+
+**Purpose**: Integration with LM Studio desktop GUI.
+
+**Key Features**:
+- Auto-discovery (probes localhost ports)
+- OpenAI-compatible API
+- Model detection
+- Simple configuration
+
+**Used By**:
+- SuperInstance Core (local inference backend)
+- GUI-first workflows
+
+**Requires**:
+- LM Studio (external application)
+
+**Complementary Tools**:
+- Model Registry (model metadata)
+- Hardware Detector (hardware checks)
+
+**Quick Start**:
+```bash
+# Install
+cargo install lmstudio-bridge
+
+# Auto-detect LM Studio
+lmstudio-bridge detect
+
+# Generate text
+lmstudio-bridge generate "Explain Rust's ownership"
+```
+
+**Documentation**: [tools/LM_STUDIO_INTEGRATION.md](tools/LM_STUDIO_INTEGRATION.md)
+
+---
+
+#### 9. LocalAI Adapter 🔌
+
+**Repository**: `https://github.com/SuperInstance/localai-adapter`
+
+**Purpose**: OpenAI-compatible API wrapper for multiple local inference tools.
+
+**Key Features**:
+- OpenAI API compatibility
+- Works with multiple backends
+- Chat completions
+- Embeddings support
+
+**Used By**:
+- SuperInstance Core (unified interface)
+- Any OpenAI-compatible application
+
+**Requires**:
+- LocalAI server (external dependency)
+
+**Complementary Tools**:
+- Model Registry (model management)
+
+**Quick Start**:
+```bash
+# Install
+cargo install localai-adapter
+
+# Start LocalAI server
+localai-server --models-path ./models --port 8080
+
+# Use via adapter
+localai-adapter chat --endpoint http://localhost:8080
+```
+
+**Documentation**: [tools/LOCALAI_INTEGRATION.md](tools/LOCALAI_INTEGRATION.md)
+
+---
+
+### Business Logic Tools
+
+#### 10. Billing System 💰
+
+**Repository**: `https://github.com/SuperInstance/metered-billing`
+
+**Purpose**: Metered usage tracking, cost calculation, and invoice generation.
+
+**Key Features**:
+- Local-first ledger
+- Pricing tiers
+- Usage events
+- Invoice generation
+- Cost monitoring
+
+**Used By**:
+- SuperInstance Cloud (usage tracking)
+- API billing systems
+- SaaS applications
+- Marketplaces
+
+**Requires**:
+- Nothing (standalone)
+
+**Complementary Tools**:
+- QUIC Tunnel (sync to cloud)
+- Model Registry (track model costs)
+
+**Quick Start**:
+```bash
+# Install
+cargo install metered-billing
+
+# Initialize billing
+metered-billing init --tier free
+
+# Record usage
+metered-billing record api-call --tokens 1000
+
+# Check balance
+metered-billing balance
+```
+
+**Documentation**: [docs/METERED_BILLING_TOOL.md](docs/METERED_BILLING_TOOL.md)
+
+---
+
+#### 11. Token Vault 🔐
+
+**Repository**: `https://github.com/SuperInstance/token-vault`
+
+**Purpose**: Secure storage and retrieval of sensitive tokens.
+
+**Key Features**:
+- SQLite storage
+- Category-based organization
+- Session management
+- Reversible redaction
+- Audit trails
+
+**Used By**:
+- Privacy Proxy (token storage)
+- Application secrets management
+- Data masking systems
+- Compliance tools
+
+**Requires**:
+- Nothing (standalone)
+
+**Complementary Tools**:
+- Privacy Proxy (primary use case)
+- Billing System (audit trails)
+
+**Quick Start**:
+```bash
+# Install
+cargo install token-vault
+
+# Store token
+token-vault store --category EMAIL --value "john@example.com"
+
+# Retrieve token
+token-vault retrieve --token [EMAIL_ABC123]
+```
+
+**Documentation**: [docs/TOKEN_VAULT_TOOL.md](docs/TOKEN_VAULT_TOOL.md)
+
+---
+
+### Tool Integration Matrix
+
+```
+┌──────────────────┬─────────────────────────────────────────────┐
+│ Tool             │ Used By Applications                       │
+├──────────────────┼─────────────────────────────────────────────┤
+│ Privacy Proxy    │ Knowledge Vault, Consensus, Cloud, Apps     │
+│ Knowledge Vault  │ CLI, Web, VS Code, Document Managers       │
+│ QUIC Tunnel      │ Cloud Escalation, Remote Access, Streaming  │
+│ Consensus Engine │ SuperInstance Core, Security, Finance       │
+│ Hardware Detect  │ All applications (auto-config)              │
+│ Model Registry   │ CLI, Ollama, LM Studio, MLOps              │
+│ Ollama Bridge    │ SuperInstance Core, LLM Apps               │
+│ LM Studio Bridge │ GUI-first workflows, Dev Tools              │
+│ LocalAI Adapter  │ OpenAI-compatible apps                     │
+│ Billing System   │ Cloud, SaaS, API Services                  │
+│ Token Vault      │ Privacy Proxy, Secrets Management          │
+└──────────────────┴─────────────────────────────────────────────┘
+
+┌──────────────────┬─────────────────────────────────────────────┐
+│ Tool             │ Requires                                   │
+├──────────────────┼─────────────────────────────────────────────┤
+│ Privacy Proxy    │ Token Vault                                │
+│ Knowledge Vault  │ None                                       │
+│ QUIC Tunnel      │ None                                       │
+│ Consensus Engine │ None                                       │
+│ Hardware Detect  │ None                                       │
+│ Model Registry   │ Hardware Detector                          │
+│ Ollama Bridge    │ Ollama (external)                          │
+│ LM Studio Bridge │ LM Studio (external)                       │
+│ LocalAI Adapter  │ LocalAI (external)                         │
+│ Billing System   │ None                                       │
+│ Token Vault      │ None                                       │
+└──────────────────┴─────────────────────────────────────────────┘
+
+┌──────────────────┬─────────────────────────────────────────────┐
+│ Tool             │ Complementary Tools                        │
+├──────────────────┼─────────────────────────────────────────────┤
+│ Privacy Proxy    │ Billing, Hardware Detect                   │
+│ Knowledge Vault  │ Privacy Proxy, Hardware Detect             │
+│ QUIC Tunnel      │ Privacy Proxy, Billing                     │
+│ Consensus Engine │ Privacy Proxy, Billing                     │
+│ Hardware Detect  │ Model Registry, Knowledge Vault            │
+│ Model Registry   │ Hardware Detect, Knowledge Vault, Billing  │
+│ Ollama Bridge    │ Model Registry, Hardware Detect            │
+│ LM Studio Bridge │ Model Registry, Hardware Detect            │
+│ LocalAI Adapter  │ Model Registry                             │
+│ Billing System   │ QUIC Tunnel, Model Registry                │
+│ Token Vault      │ Privacy Proxy, Billing                     │
+└──────────────────┴─────────────────────────────────────────────┘
+```
+
+---
+
+## SuperInstance Core
+
+### Purpose
+
+SuperInstance Core is the **orchestrator hub** that plugs in tools to create a cohesive AI system. It's not a monolith—it's a composition layer.
 
 ### Architecture
+
+```
+SuperInstance Core (The Glue)
+┌─────────────────────────────────────────────────────────────┐
+│                  Core Orchestrator                           │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │           Tool Integration Layer                       │  │
+│  │  ┌─────────┐  ┌─────────┐  ┌─────────┐               │  │
+│  │  │Privacy  │  │Knowledge│  │Consensus│               │  │
+│  │  │ Proxy   │  │ Vault   │  │ Engine  │               │  │
+│  │  └────┬────┘  └────┬────┘  └────┬────┘               │  │
+│  │       │            │            │                     │  │
+│  │  ┌────▼────────────▼────────────▼────┐                │  │
+│  │  │      Unified API Surface          │                │  │
+│  │  └───────────────────────────────────┘                │  │
+│  └───────────────────────────────────────────────────────┘  │
+│                                                             │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │           Tripartite Council (Example App)            │  │
+│  │  ┌─────────┐  ┌─────────┐  ┌─────────┐               │  │
+│  │  │ PATHOS  │  │  LOGOS  │  │  ETHOS  │               │  │
+│  │  │(Intent) │  │(Logic)  │  │(Truth)  │               │  │
+│  │  └────┬────┘  └────┬────┘  └────┬────┘               │  │
+│  │       └───────────┼───────────┘                      │  │
+│  │                   ▼                                  │  │
+│  │         Consensus Engine (tool)                      │  │
+│  └───────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### How to Plug In a New Tool
+
+#### Step 1: Create the Tool
+
+```rust
+// Your tool crate
+// Cargo.toml
+[package]
+name = "my-si-tool"
+version = "0.1.0"
+
+[dependencies]
+synesis-core = { version = "0.2", optional = true }
+
+// src/lib.rs
+pub struct MyTool {
+    config: ToolConfig,
+}
+
+impl MyTool {
+    pub fn new(config: ToolConfig) -> Result<Self, Error> {
+        Ok(Self { config })
+    }
+
+    pub fn process(&self, input: &str) -> Result<String, Error> {
+        // Your tool logic
+        Ok(format!("Processed: {}", input))
+    }
+}
+```
+
+#### Step 2: Register with SuperInstance Core
+
+```rust
+// In SuperInstance Core
+// crates/synesis-core/src/tools/mod.rs
+
+pub mod my_tool;  // Add this
+
+use my_tool::MyTool;
+
+// Register tool
+pub struct ToolRegistry {
+    tools: HashMap<String, Box<dyn Any>>,
+}
+
+impl ToolRegistry {
+    pub fn register_my_tool(&mut self, config: ToolConfig) {
+        let tool = MyTool::new(config).unwrap();
+        self.tools.insert("my_tool".to_string(), Box::new(tool));
+    }
+
+    pub fn get_tool<T: 'static>(&self, name: &str) -> Option<&T> {
+        self.tools.get(name).and_then(|t| t.downcast_ref::<T>())
+    }
+}
+```
+
+#### Step 3: Use in CLI
+
+```rust
+// crates/synesis-cli/src/commands/my_tool.rs
+
+use synesis_core::tools::my_tool::MyTool;
+
+pub fn run_my_tool(input: &str) -> Result<(), Error> {
+    let registry = get_tool_registry();
+    let tool = registry.get_tool::<MyTool>("my_tool").unwrap();
+    let output = tool.process(input)?;
+    println!("{}", output);
+    Ok(())
+}
+```
+
+#### Step 4: Document Relationships
+
+```markdown
+# My Tool
+
+**Repository**: `https://github.com/SuperInstance/my-si-tool`
+
+**Used By**:
+- SuperInstance Core
+- [Your app here]
+
+**Requires**:
+- Nothing
+
+**Complementary Tools**:
+- Privacy Proxy (if handling sensitive data)
+- Billing System (if tracking usage)
+```
+
+### Tool Integration Patterns
+
+#### Pattern 1: Direct Library Usage
+
+```rust
+// Use tool as library
+use privacy_proxy::Redactor;
+
+let redactor = Redactor::new(config)?;
+let redacted = redactor.redact(text).await?;
+```
+
+#### Pattern 2: CLI Integration
+
+```bash
+# Use tool CLI
+synesis my-tool --input "data"
+
+# Which calls:
+my-tool --input "data"
+```
+
+#### Pattern 3: Service Mode
+
+```bash
+# Tool runs as microservice
+my-tool server --port 8080
+
+# SuperInstance connects via HTTP/QUIC
+```
+
+### Example: Building a Custom App
+
+```rust
+// My custom AI app using SuperInstance tools
+
+use privacy_proxy::Redactor;
+use knowledge_vault::KnowledgeBase;
+use consensus_engine::ConsensusEngine;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // 1. Load tools
+    let redactor = Redactor::new(config)?;
+    let kb = KnowledgeBase::new("./kb.db").await?;
+    let engine = ConsensusEngine::new(agents, config)?;
+
+    // 2. Process query
+    let query = "How does authentication work?";
+
+    // 3. Redact (if needed)
+    let redacted = redactor.redact(query).await?;
+
+    // 4. Search knowledge
+    let context = kb.search(&redacted, 3).await?;
+
+    // 5. Run consensus
+    let result = engine.decide(context).await?;
+
+    // 6. Return answer
+    println!("Answer: {}", result);
+
+    Ok(())
+}
+```
+
+---
+
+## UI Architectures
+
+### Strategy: Documentation First, Implementation Later
+
+UIs are **thin composition layers** over our tools. We document architectures before implementing.
+
+---
+
+### 1. CLI (Command-Line Interface) ✅ COMPLETE
+
+**Status**: Production Ready
+**Documentation**: [docs/CLI_ARCHITECTURE.md](docs/CLI_ARCHITECTURE.md)
+**User Guide**: [docs/CLI_USER_GUIDE.md](docs/CLI_USER_GUIDE.md)
+**Developer Guide**: [docs/CLI_DEVELOPER_GUIDE.md](docs/CLI_DEVELOPER_GUIDE.md)
+
+#### Architecture Overview
 
 ```
 CLI Application (synesis-cli)
@@ -123,96 +904,51 @@ CLI Application (synesis-cli)
     └── Direct calls to synesis-core (no HTTP overhead)
 ```
 
-### User Guide
+#### Key Features
 
-#### Installation
+- Hardware detection (auto-optimizes for your system)
+- Tripartite consensus visualization
+- Knowledge vault RAG integration
+- Privacy redaction (18 built-in patterns)
+- Local inference (no internet required)
+- Optional cloud escalation
+- Configuration profiles
+- Streaming responses
 
-```bash
-# Clone and build
-git clone https://github.com/SuperInstance/Tripartite1.git
-cd Tripartite1
-cargo build --release
-
-# (Optional) Add to PATH
-export PATH="$PATH:$(pwd)/target/release"
-```
-
-#### Essential Commands
+#### Quick Start
 
 ```bash
+# Install
+cargo install synesis-cli
+
 # First-time setup
 synesis init
 
-# Basic usage
+# Ask question
 synesis ask "Explain how Rust's ownership works"
 
-# Knowledge base
+# Add knowledge
 synesis knowledge add ~/Documents/my-project/
-synesis ask "How does the authentication system work?"
 
-# Model management
-synesis model list
-synesis model download phi-3-mini
-
-# System status
+# Check status
 synesis status
 ```
 
-#### Advanced Features
-
-```bash
-# Interactive mode
-synesis chat --interactive
-
-# Cloud escalation
-synesis ask --cloud "Explain quantum computing deeply"
-
-# Configuration profiles
-synesis profile create developer
-synesis profile use developer
-synesis profile set developer.model phi-3-mini
-
-# Batch processing
-synesis batch --file queries.txt --output results/
-```
-
-#### Output Modes
-
-```bash
-# Standard output
-synesis ask "query"
-
-# JSON output (for scripting)
-synesis ask "query" --format json --output result.json
-
-# Markdown output
-synesis ask "query" --format markdown --pipe-less
-
-# Verbose mode
-synesis ask "query" --verbose
-```
-
-### Features
-
-- ✅ Hardware detection (auto-optimizes for your system)
-- ✅ Tripartite consensus visualization
-- ✅ Knowledge vault RAG integration
-- ✅ Privacy redaction (18 built-in patterns)
-- ✅ Local inference (no internet required)
-- ✅ Optional cloud escalation
-- ✅ Configuration profiles
-- ✅ Streaming responses
-- ✅ Session persistence
+**Repository**: `https://github.com/SuperInstance/Tripartite1`
+**Implementation**: Complete
 
 ---
 
-## 2. Web Dashboard 🔄 PLANNED
+### 2. Web Dashboard 🔄 PLANNED
 
-**Status**: Architecture Complete, Implementation Scheduled
+**Status**: Architecture Documented, Implementation Scheduled
 **Priority**: P1
-**Documentation**: [docs/WEB_DASHBOARD_GUIDE.md](docs/WEB_DASHBOARD_GUIDE.md) (NEW)
+**Documentation**:
+- [docs/WEB_ARCHITECTURE.md](docs/WEB_ARCHITECTURE.md) (Architecture overview)
+- [docs/WEB_USER_GUIDE.md](docs/WEB_USER_GUIDE.md) (User workflows)
+- [docs/WEB_DEVELOPER_GUIDE.md](docs/WEB_DEVELOPER_GUIDE.md) (Implementation guide)
 
-### Architecture
+#### Architecture Overview
 
 ```
 ┌───────────────────────────────────────────────────────────┐
@@ -248,67 +984,7 @@ synesis ask "query" --verbose
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Key Features
-
-1. **Real-Time Chat Interface**
-   - Streaming responses with typing indicators
-   - Agent visualization (Pathos/Logos/Ethos status)
-   - Consensus meter showing live voting
-   - Message history with search
-
-2. **Knowledge Vault Browser**
-   - Document listing with metadata
-   - Chunk viewer with embeddings
-   - Semantic search interface
-   - Drag-and-drop document upload
-
-3. **Configuration Management**
-   - Visual model selection
-   - Consensus threshold slider
-   - Privacy pattern toggles
-   - Profile management UI
-
-4. **Admin Dashboard**
-   - System metrics (CPU, GPU, memory usage)
-   - Billing overview
-   - User management (multi-tenant)
-   - Cloud connection status
-
-### User Guide
-
-#### Accessing the Dashboard
-
-```bash
-# Start web server
-cd web-dashboard
-npm install
-npm run dev
-
-# Access at
-open http://localhost:3000
-```
-
-#### Core Workflows
-
-**1. Chat Interface**
-- Enter query in chat box
-- Watch agents think in real-time
-- View consensus formation
-- Share conversations (future feature)
-
-**2. Knowledge Management**
-- Browse indexed documents
-- Upload new documents (drag-and-drop)
-- Search semantic content
-- View chunk breakdowns
-
-**3. Settings**
-- Switch between models
-- Adjust consensus threshold
-- Toggle privacy patterns
-- Manage profiles
-
-### Technology Stack
+#### Technology Stack
 
 **Frontend**:
 - Next.js 14 (App Router)
@@ -324,15 +1000,59 @@ open http://localhost:3000
 - SSE/WebSocket support
 - JWT authentication
 
+#### Key Features (Planned)
+
+1. **Real-Time Chat Interface**
+   - Streaming responses with typing indicators
+   - Agent visualization (Pathos/Logos/Ethos status)
+   - Consensus meter showing live voting
+
+2. **Knowledge Vault Browser**
+   - Document listing with metadata
+   - Semantic search interface
+   - Drag-and-drop document upload
+
+3. **Configuration Management**
+   - Visual model selection
+   - Consensus threshold slider
+   - Privacy pattern toggles
+
+4. **Admin Dashboard**
+   - System metrics (CPU, GPU, memory)
+   - Billing overview
+   - Cloud connection status
+
+#### User Workflows
+
+**Chat Interface**:
+- Enter query in chat box
+- Watch agents think in real-time
+- View consensus formation
+
+**Knowledge Management**:
+- Browse indexed documents
+- Upload new documents (drag-and-drop)
+- Search semantic content
+
+**Settings**:
+- Switch between models
+- Adjust consensus threshold
+- Toggle privacy patterns
+
+**Implementation**: Not started (architecture documented)
+
 ---
 
-## 3. Desktop Application 🔄 PLANNED
+### 3. Desktop Application 🔄 PLANNED
 
-**Status**: Architecture Complete, Implementation Scheduled
+**Status**: Architecture Documented, Implementation Scheduled
 **Priority**: P1
-**Documentation**: [docs/DESKTOP_APP_GUIDE.md](docs/DESKTOP_APP_GUIDE.md) (NEW)
+**Documentation**:
+- [docs/DESKTOP_ARCHITECTURE.md](docs/DESKTOP_ARCHITECTURE.md) (Architecture overview)
+- [docs/DESKTOP_USER_GUIDE.md](docs/DESKTOP_USER_GUIDE.md) (User workflows)
+- [docs/DESKTOP_DEVELOPER_GUIDE.md](docs/DESKTOP_DEVELOPER_GUIDE.md) (Implementation guide)
 
-### Architecture
+#### Architecture Overview
 
 ```
 ┌──────────────────────────────────────────────────┐
@@ -364,7 +1084,19 @@ open http://localhost:3000
 └───────────────────────────────────────────────────┘
 ```
 
-### Key Features
+#### Technology Stack
+
+**Frontend**:
+- React + TypeScript
+- Reuses web-dashboard components
+- Tauri API for native features
+
+**Backend**:
+- Tauri 2.0
+- Rust
+- synesis-core (embedded library)
+
+#### Key Features (Planned)
 
 1. **Offline-First**
    - Full functionality without internet
@@ -380,7 +1112,6 @@ open http://localhost:3000
 3. **Local Resource Management**
    - Hardware acceleration UI
    - Model download manager
-   - Disk space management
    - GPU memory monitoring
 
 4. **Security**
@@ -388,57 +1119,26 @@ open http://localhost:3000
    - Biometric unlock (TouchID/Windows Hello)
    - Encrypted local storage
 
-### User Guide
-
-#### Installation
-
-```bash
-# Install Desktop App
-cargo install --path desktop-app
-
-# Or download pre-built binary
-# Available for: Windows, macOS, Linux
-```
-
-#### First Launch
-
-1. **Hardware Detection**: Auto-detects CPU/GPU/RAM
-2. **Model Selection**: Choose default model
-3. **Profile Setup**: Create or import profile
-4. **Knowledge**: Optionally index documents
-
-#### Core Features
-
-**Chat Panel**:
-- Real-time agent visualization
-- Conversation history
-- Quick actions (clear, export, settings)
-
-**Knowledge Browser**:
-- Document tree view
-- Chunk viewer
-- Search interface
-
-**System Tray Menu**:
-- Quick chat (global hotkey)
-- Knowledge vault status
-- System metrics
-
-### Distribution
+#### Distribution
 
 - **Windows**: `.exe` installer
 - **macOS**: `.dmg` installer
 - **Linux**: AppImage/deb package
 
+**Implementation**: Not started (architecture documented)
+
 ---
 
-## 4. VS Code Extension 🔄 PLANNED
+### 4. VS Code Extension 🔄 PLANNED
 
-**Status**: Architecture Complete, Implementation Scheduled
+**Status**: Architecture Documented, Implementation Scheduled
 **Priority**: P1
-**Documentation**: [docs/VSCODE_EXTENSION_GUIDE.md](docs/VSCODE_EXTENSION_GUIDE.md) (NEW)
+**Documentation**:
+- [docs/VSCODE_ARCHITECTURE.md](docs/VSCODE_ARCHITECTURE.md) (Architecture overview)
+- [docs/VSCODE_USER_GUIDE.md](docs/VSCODE_USER_GUIDE.md) (User workflows)
+- [docs/VSCODE_DEVELOPER_GUIDE.md](docs/VSCODE_DEVELOPER_GUIDE.md) (Implementation guide)
 
-### Architecture
+#### Architecture Overview
 
 ```
 ┌──────────────────────────────────────────────────┐
@@ -466,7 +1166,18 @@ cargo install --path desktop-app
 └───────────────────────────────────────────────────┘
 ```
 
-### Key Features
+#### Technology Stack
+
+**Extension**:
+- TypeScript
+- VS Code Extension API
+- WASM for Rust core
+
+**Optional Server**:
+- Rust binary
+- Runs in background
+
+#### Key Features (Planned)
 
 1. **Context-Aware Completions**
    - File-aware suggestions
@@ -476,7 +1187,7 @@ cargo install --path desktop-app
 2. **Inline Explanations**
    - Hover over code for explanations
    - Step-by-step logic breakdown
-   - Safety warnings for dangerous code
+   - Safety warnings
 
 3. **Codebase Q&A**
    - "How does authentication work?"
@@ -487,35 +1198,6 @@ cargo install --path desktop-app
    - Suggest improvements via Ethos
    - Performance optimization hints
    - Bug detection
-
-### User Guide
-
-#### Installation
-
-```bash
-# Install from VS Code Marketplace
-code --install-extension superinstance.superinstance
-
-# Or install from VSIX
-code --install-extension superinstance-superinstance.vsix
-```
-
-#### Core Features
-
-**Inline Completion**:
-- Type code, get suggestions
-- Context-aware (reads open files)
-- Based on indexed codebase
-
-**Chat Panel** (Sidebar):
-- Ask questions about codebase
-- Get explanations
-- Request refactoring help
-
-**Commands**:
-- `synesis.explain` - Explain selected code
-- `synesis.refactor` - Suggest improvements
-- `synesis.chat` - Open chat panel
 
 #### Configuration
 
@@ -529,15 +1211,20 @@ code --install-extension superinstance-superinstance.vsix
 }
 ```
 
+**Implementation**: Not started (architecture documented)
+
 ---
 
-## 5. Mobile SDK 🔄 PLANNED
+### 5. Mobile SDK 🔄 PLANNED
 
-**Status**: Architecture Complete, Implementation Scheduled
+**Status**: Architecture Documented, Implementation Scheduled
 **Priority**: P2
-**Documentation**: [docs/MOBILE_SDK_GUIDE.md](docs/MOBILE_SDK_GUIDE.md) (NEW)
+**Documentation**:
+- [docs/MOBILE_ARCHITECTURE.md](docs/MOBILE_ARCHITECTURE.md) (Architecture overview)
+- [docs/MOBILE_USER_GUIDE.md](docs/MOBILE_USER_GUIDE.md) (User workflows)
+- [docs/MOBILE_DEVELOPER_GUIDE.md](docs/MOBILE_DEVELOPER_GUIDE.md) (Implementation guide)
 
-### Architecture
+#### Architecture Overview
 
 ```
 ┌──────────────────────────────────────────────────┐
@@ -574,7 +1261,17 @@ code --install-extension superinstance-superinstance.vsix
 └───────────────────────────────────────────────────┘
 ```
 
-### Key Features
+#### Technology Stack
+
+**Cross-Platform**:
+- Flutter
+- Dart
+
+**Native**:
+- Android: Kotlin (JNI)
+- iOS: Swift (FFI)
+
+#### Key Features (Planned)
 
 1. **Offline Mode**
    - Cache previous queries
@@ -596,1077 +1293,540 @@ code --install-extension superinstance-superinstance.vsix
    - Widgets (home screen)
    - Siri shortcuts / Google Assistant
 
-### User Guide
+**Implementation**: Not started (architecture documented)
 
-#### Installation
+---
+
+## Development Workflow
+
+### How to Extract a Tool
+
+When a component in SuperInstance Core is generalizable, extract it:
+
+#### Step 1: Evaluate
 
 ```bash
-# Install from App Store
-# Available for: iOS, Android
-
-# Or build from source
-flutter pub global activate
-cd mobile-app
-flutter run
+# Is this tool valuable independently?
+- [ ] Can it work standalone?
+- [ ] Does it solve a common problem?
+- [ ] Is it useful outside SuperInstance?
+- [ ] Does it have a clean API surface?
 ```
 
-#### Core Features
-
-**Chat Interface**:
-- Voice input (speech-to-text)
-- Text-to-speech responses
-- Conversation history
-- Sync across devices
-
-**Knowledge Vault**:
-- Browse indexed documents
-- Search semantic content
-- View code chunks
-- Upload new documents
-
-**Settings**:
-- Model selection
-- Cloud sync toggle
-- Privacy settings
-- Profile management
-
----
-
-## Plug-and-Play AI Tool Integration
-
-### Integration Architecture
-
-```
-SuperInstance Core
-       │
-       ├───┬──────────────────────────────────────┐
-       │   │                                        │
-       │   ├────────► Ollama (local model server)    │
-       │   │                                        │
-       │   ├────────► LM Studio (GUI model runner)    │
-         │   │                                        │
-       │   ├────────► LocalAI (OpenAI-compatible)    │
-       │   │                                        │
-       │   ├────────► vLLM (high-performance)       │
-       │   │                                        │
-       │   ├────────► NeMo Agent Toolkit (NVIDIA)  │
-       │   │                                        │
-       │   └────────► VILA (multimodal)           │
-       │                                          │
-       ▼                                          ▼
-   OpenAI-Compatible API Abstraction Layer
-```
-
-### Supported Tools
-
-| Tool | Type | Integration | Status | Use Case |
-|------|------|------------|--------|----------|
-| **[Ollama](https://ollama.com)** | Local server | `synesis-ollama` crate | ✅ Planned | Easy model management |
-| **[LM Studio](https://lmstudio.ai)** | Desktop GUI | `synesis-lmstudio` crate | ✅ Planned | GUI-first workflow |
-| **[LocalAI](https://localai.io/)** | OpenAI-compatible | `synesis-localai` crate | ✅ Planned | API compatibility |
-| **[vLLM](https://lmzh.uvicu.org/)** | High-performance | `synesis-vllm` crate | 🔄 Future | Production serving |
-| **[NeMo](https://developer.nvidia.com/nemo-agent-toolkit)** | Agent framework | `synesis-nemo` bridge | 🔄 Future | Agent capabilities |
-| **[VILA](https://github.com/NVlabs/VILA)** | Multimodal | `synesis-vision` crate | 🔄 Future | Image understanding |
-
----
-
-### 1. Ollama Integration ✅
-
-**Documentation**: [tools/OLLAMA_INTEGRATION.md](tools/OLLAMA_INTEGRATION.md) (NEW)
-
-#### Architecture
-
-```rust
-// crates/synesis-ollama/
-//! Ollama integration for SuperInstance
-
-pub mod client;
-pub mod models;
-pub mod inference;
-
-pub struct OllamaAgent {
-    config: AgentConfig,
-    client: OllamaClient,
-    model: String,
-}
-
-#[async_trait]
-impl Agent for OllamaAgent {
-    async fn process(&self, input: AgentInput) -> Result<AgentResponse, AgentError> {
-        let prompt = self.format_prompt(&input);
-        let response = self.client.generate(&self.model, &prompt).await?;
-        Ok(AgentResponse::from(response))
-    }
-}
-```
-
-#### Usage
+#### Step 2: Create Repository
 
 ```bash
-# Pull and use Ollama models
-synesis backend set ollama.enabled true
-synesis ollama pull llama3:70b
-synesis ask "Explain quantum computing" --backend ollama
+# Create new repository
+gh repo create si-tool-name --public --clone
+
+# Set up structure
+cd si-tool-name
+cargo init --lib
+mkdir -p docs examples tests
 ```
 
-**Benefits**:
-- No compilation required
-- Easy model management
-- GPU acceleration
-- Multi-model support
-
----
-
-### 2. LM Studio Integration ✅
-
-**Documentation**: [tools/LM_STUDIO_INTEGRATION.md](tools/LM_STUDIO_INTEGRATION.md) (NEW)
-
-#### Architecture
-
-```rust
-// crates/synesis-lmstudio/
-//! LM Studio integration (uses local API)
-
-pub struct LMStudioClient {
-    base_url: String,  // http://localhost:1234
-}
-
-impl LMStudioClient {
-    pub async fn discover() -> Result<Self, LMSError> {
-        let ports = [1234, 8080, 5000];
-        for port in ports {
-            if Self::probe(&format!("http://localhost:{}", port)).await {
-                return Ok(Self { base_url: format!("http://localhost:{}", port) });
-            }
-        }
-        Err(LMSError::NotFound)
-    }
-
-    pub async fn get_loaded_model(&self) -> Result<String, LMSError> {
-        let resp = reqwest::get(&format!("{}/v1/models", self.base_url))
-            .await?
-            .json::<ModelsResponse>()
-            .await?;
-
-        Ok(resp.data.first().map(|m| m.id.clone()).unwrap_or_default())
-    }
-}
-```
-
-#### Usage
+#### Step 3: Extract Code
 
 ```bash
-# Auto-detect LM Studio
-synesis backend detect
+# Copy code from SuperInstance
+cp -r /path/to/synesis-core/src/tool ./src/
 
-# Use LM Studio
-synesis ask "query" --backend lmstudio
+# Update dependencies
+# Cargo.toml
+[package]
+name = "tool-name"
+version = "0.1.0"
+
+[dependencies]
+# Remove SuperInstance dependencies
+# Add only what's needed
 ```
 
----
+#### Step 4: Document
 
-### 3. LocalAI Compatibility Layer ✅
+```markdown
+# Tool Name
 
-**Documentation**: [tools/LOCALAI_INTEGRATION.md](tools/LOCALAI_INTEGRATION.md) (NEW)
+**Purpose**: One-line description
 
-#### Purpose
+**Used By**:
+- SuperInstance Core
+- [List other apps]
 
-Provides OpenAI-compatible API wrapper for multiple local inference tools.
+**Requires**:
+- [List dependencies]
 
-#### Architecture
+**Complementary Tools**:
+- [List related tools]
+
+## Quick Start
+
+\`\`\`bash
+cargo install tool-name
+tool-name --help
+\`\`\`
+
+## API Documentation
+
+...
+
+## Examples
+
+...
+```
+
+#### Step 5: Add CLI
 
 ```rust
-// crates/synesis-localai/
-//! LocalAI compatibility layer
-
-pub struct LocalAIAdapter {
-    endpoint: String,
-    api_key: Option<String>,
-}
-
-impl LocalAIAdapter {
-    pub async fn chat_completion(
-        &self,
-        request: ChatCompletionRequest,
-    ) -> Result<ChatCompletionResponse, LocalAIError> {
-        let url = format!("{}/v1/chat/completions", self.endpoint);
-        let client = reqwest::Client::new();
-
-        let resp = client.post(&url).json(&request).send().await?
-            .json::<ChatCompletionResponse>().await?;
-
-        Ok(resp)
-    }
-}
-
-// Convert SuperInstance requests to OpenAI format
-impl From<AgentInput> for ChatCompletionRequest {
-    fn from(input: AgentInput) -> Self {
-        ChatCompletionRequest {
-            model: "gpt-3.5-turbo".to_string(),
-            messages: vec![Message {
-                role: "user".to_string(),
-                content: input.manifest.query,
-            }],
-            temperature: Some(0.7),
-            max_tokens: Some(2048),
-        }
-    }
-}
-```
-
-#### Usage
-
-```bash
-# Start LocalAI server
-localai-server --models-path ./models --port 8080
-
-# Configure SuperInstance
-synesis config set localai.endpoint http://localhost:8080
-synesis ask "query" --backend localai
-```
-
----
-
-### 4. vLLM Integration 🔄 Future
-
-**Purpose**: High-performance production serving
-
-**Documentation**: [tools/VLLM_INTEGRATION.md](tools/VLLM_INTEGRATION.md) (NEW)
-
-#### Use Cases
-
-- Production API server
-- Batch inference
-- Multi-model serving
-- Load balancing
-
----
-
-### 5. NeMo Agent Toolkit 🔄 Research
-
-**NVIDIA NeMo**: Framework for building conversational AI
-
-**Resources**:
-- [NeMo Agent Toolkit](https://developer.nvidia.com/nemo-agent-toolkit)
-- [Build Custom AI Agents](https://developer.nvidia.com/blog/how-to-build-custom-ai-agents-with-nemo-agent-toolkit-open-source-library/)
-- [RagaAI Catalyst Integration](https://raga.ai/resources/blogs/raga-ai-catalyst-integrates-with-nvidia-nemo-agent-toolkit-building-reliable-ai-agents-from-day-one)
-
-#### Integration Approach
-
-```python
-# Python bridge via PyO3
-# crates/synesis-nemo/
-
-use pyo3::prelude::*;
-
-pub struct NeMoAgent {
-    python: Python,
-    nemo_module: Py<PyModule>,
-}
-
-impl NeMoAgent {
-    pub async fn transcribe(&self, audio: &[u8]) -> Result<String, NeMoError> {
-        let python = Python::acquire_gil();
-        let py = python.python();
-
-        let result = self.nemo_module.call_method1(py, "transcribe", (audio,))?;
-        Ok(result.extract(py)?)
-    }
-}
-```
-
-#### Use Cases
-
-- Speech-to-text input
-- Text-to-speech output
-- Multimodal query processing
-
----
-
-### 6. VILA Multimodal 🔄 Research
-
-**VILA**: NVIDIA's Vision-Language model family
-
-**Resources**:
-- [VILA GitHub](https://github.com/NVlabs/VILA)
-- [Visual Language Models on NVIDIA Hardware](https://developer.nvidia.cn/blog/visual-language-models-on-nvidia-hardware-with-vila/)
-- [New VILA-1.5 Models](https://forums.developer.nvidia.com/t/new-vila-1-5-multimodal-vision-language-models-released-in-3b-8b-13b-40b/)
-
-#### Architecture
-
-```rust
-// crates/synesis-vision/
-//! Multimodal AI support (VILA, LLaVA, etc.)
-
-pub struct VisionAgent {
-    model: VisionModel,
-    embedder: ImageEmbedder,
-}
-
-pub enum VisionInput {
-    Image(Vec<u8>),
-    ImageUrl(String),
-    Screenshot,
-}
-
-impl VisionAgent {
-    pub async fn analyze_image(
-        &self,
-        image: VisionInput,
-        query: &str,
-    ) -> Result<VisionResponse, VisionError> {
-        let embedding = self.embedder.encode(&image).await?;
-        let response = self.model.generate(query, embedding).await?;
-        Ok(response)
-    }
-}
-```
-
-#### Usage
-
-```bash
-# Analyze images
-synesis ask "What's in this image?" --image photo.png
-
-# Analyze screenshots
-synesis ask "What error is shown?" --screenshot
-
-# Batch analysis
-synesis vision analyze ./photos/ --query "What objects are visible?"
-```
-
----
-
-### 7. JEPA Architecture Research 🔄 Exploration
-
-**JEPA** (Joint Embedding Predictive Architecture): Meta's approach to self-supervised learning
-
-**Resources**:
-- [VL-JEPA Paper](https://arxiv.org/abs/2512.10942)
-- [JEPA Overview](https://medium.com/@saumya.april1/jepa-joint-embedding-predictive-architecture-5b1ee798c8b7)
-
-#### Potential Applications
-
-1. **Predictive Text Completion**
-   - Enhanced code completion
-   - Workflow prediction
-   - Intent prediction (Pathos enhancement)
-
-2. **Sequence Modeling**
-   - Code understanding
-   - Log analysis
-   - Behavior prediction
-
-3. **Representation Learning**
-   - Better embeddings
-   - Self-supervised pre-training
-
----
-
-## Independent Standalone Tools
-
-### Tool Extraction Strategy
-
-Each major component is designed as an independent crate with:
-- Clean API surface
-- Standalone CLI
-- Library usage
-- Documentation
-- Examples
-
----
-
-### 1. Privacy Proxy (Redaction System) 🛡️
-
-**Standalone Crate**: `privacy-proxy`
-
-**Documentation**: [tools/PRIVACY_PROXY_TOOL.md](tools/PRIVACY_PROXY_TOOL.md) (NEW)
-
-#### Purpose
-
-Redact sensitive information (PII, secrets, credentials) before sharing data.
-
-#### API
-
-```rust
-//! Privacy Proxy: Redact and re-inflate sensitive information
-
-use privacy_proxy::{Redactor, RedactorConfig, TokenVault};
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Create vault
-    let vault = TokenVault::open("vault.db")?;
-
-    // Create redactor
-    let config = RedactorConfig::default();
-    let mut redactor = Redactor::new(config, vault)?;
-
-    // Redact text
-    let text = "Contact john@example.com or call 555-1234";
-    let result = redactor.redact(text, "session-1").await?;
-
-    println!("Original: {}", text);
-    println!("Redacted: {}", result.redacted_text);
-    // Output: Contact [EMAIL_001] or call [PHONE_001]
-
+// src/main.rs
+use tool_name::Tool;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let tool = Tool::new()?;
+    // CLI logic
     Ok(())
 }
 ```
 
-#### CLI
+#### Step 6: Publish
 
 ```bash
-# Redact text
-privacy-proxy redact "Contact john@example.com" --vault vault.db
+# Test
+cargo test
+cargo clippy -- -D warnings
+cargo fmt --all
 
-# Re-inflate (when authorized)
-privacy-proxy reinflate redacted.txt --vault vault.db
+# Publish to crates.io
+cargo publish
 
-# Server mode (microservice)
-privacy-proxy server --port 8080
+# Announce
+# - Update SuperInstance README
+# - Create release notes
+# - Add to ecosystem matrix
 ```
 
-#### Use Cases
+### How to Integrate a Tool
 
-1. **Log Scrubbing**
-   ```bash
-   cat application.log | privacy-proxy redact --stream > clean.log
+#### Step 1: Add Dependency
+
+```toml
+# Cargo.toml
+[dependencies]
+tool-name = "0.1"
+```
+
+#### Step 2: Register Tool
+
+```rust
+// synesis-core/src/tools/mod.rs
+pub mod tool_name;
+
+use tool_name::Tool;
+
+pub fn register_all_tools() -> ToolRegistry {
+    let mut registry = ToolRegistry::new();
+    registry.register("tool_name", Tool::new().unwrap());
+    // ...
+    registry
+}
+```
+
+#### Step 3: Use in Application
+
+```rust
+// synesis-cli/src/commands/using_tool.rs
+use synesis_core::tools::tool_name::Tool;
+
+pub fn run() -> Result<(), Error> {
+    let tool = get_tool::<Tool>("tool_name")?;
+    tool.do_something()?;
+    Ok(())
+}
+```
+
+#### Step 4: Document Integration
+
+```markdown
+## Tool Integration
+
+**Tool**: tool-name
+**Version**: 0.1.0
+**Purpose**: What it does
+
+### Integration Points
+
+1. **CLI**: `synesis tool-name --arg value`
+2. **Core**: `synesis_core::tools::tool_name`
+3. **Configuration**: `~/.config/synesis/tool-name.yaml`
+
+### Examples
+
+...
+```
+
+### Cross-Referencing Standards
+
+Every tool repository MUST include:
+
+```markdown
+# Ecosystem Integration
+
+## Used By
+
+Applications that use this tool:
+- [SuperInstance Core](https://github.com/SuperInstance/Tripartite1) - Description
+- [Other App](https://github.com/other/app) - Description
+- [Your App](https://github.com/your/app) - Add yours!
+
+## Requires
+
+Tools this tool depends on:
+- [dependency-tool](https://github.com/SuperInstance/dependency-tool) - Why it's needed
+
+## Complementary Tools
+
+Tools that work well with this:
+- [related-tool](https://github.com/SuperInstance/related-tool) - How they complement
+- [another-tool](https://github.com/SuperInstance/another-tool) - Integration pattern
+```
+
+---
+
+## Tool Repository Template
+
+### Standard Structure
+
+```
+si-tool-name/
+├── Cargo.toml              # Package metadata
+├── README.md               # User-facing overview
+├── LICENSE                 # Apache 2.0
+├── CHANGELOG.md            # Version history
+├── CONTRIBUTING.md         # Contribution guidelines
+│
+├── docs/                   # Documentation
+│   ├── ARCHITECTURE.md     # Technical architecture
+│   ├── API.md              # API reference
+│   ├── EXAMPLES.md         # Usage examples
+│   └── INTEGRATION.md      # How to integrate
+│
+├── examples/               # Example code
+│   ├── basic_usage.rs
+│   ├── advanced.rs
+│   └── integration.rs
+│
+├── tests/                  # Integration tests
+│   └── integration_test.rs
+│
+└── src/
+    ├── lib.rs              # Library exports
+    ├── error.rs            # Error types
+    └── ...
+```
+
+### README.md Template
+
+```markdown
+# Tool Name
+
+> One-line description
+
+![Build](https://github.com/SuperInstance/tool-name/workflows/Build/badge.svg)
+![Version](https://img.shields.io/crates/v/tool-name)
+![License](https://img.shields.io/crates/l/tool-name)
+
+## What is it?
+
+Brief description of what the tool does and why it's useful.
+
+## Features
+
+- Feature 1
+- Feature 2
+- Feature 3
+
+## Quick Start
+
+\`\`\`bash
+# Install
+cargo install tool-name
+
+# Use
+tool-name --help
+\`\`\`
+
+## Documentation
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [API Reference](docs/API.md)
+- [Examples](docs/EXAMPLES.md)
+- [Integration Guide](docs/INTEGRATION.md)
+
+## Ecosystem Integration
+
+### Used By
+
+- [SuperInstance Core](https://github.com/SuperInstance/Tripartite1) - Primary use case
+- [Your App](https://github.com/your/app) - Add yours!
+
+### Requires
+
+- [dependency-tool](https://github.com/SuperInstance/dependency-tool) - Why
+
+### Complementary Tools
+
+- [related-tool](https://github.com/SuperInstance/related-tool) - How they work together
+
+## Examples
+
+\`\`\`rust
+use tool_name::Tool;
+
+let tool = Tool::new()?;
+let result = tool.do_something()?;
+\`\`\`
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## License
+
+Apache 2.0
+```
+
+### Cargo.toml Template
+
+```toml
+[package]
+name = "tool-name"
+version = "0.1.0"
+edition = "2021"
+authors = ["SuperInstance Team"]
+description = "One-line description"
+repository = "https://github.com/SuperInstance/tool-name"
+license = "Apache-2.0"
+keywords = ["ai", "privacy", "local-first"]
+categories = ["command-line-utilities", "development-tools"]
+
+[dependencies]
+# Only essential dependencies
+
+[dev-dependencies]
+# Test dependencies
+
+[[bin]]
+name = "tool-name"
+path = "src/main.rs"
+```
+
+### Documentation Standards
+
+Every tool MUST have:
+
+1. **README.md**: User-facing overview, quick start, links to detailed docs
+2. **ARCHITECTURE.md**: Technical architecture, design decisions
+3. **API.md**: Complete API reference with examples
+4. **EXAMPLES.md**: Common usage patterns
+5. **INTEGRATION.md**: How to integrate into other projects
+6. **CHANGELOG.md**: Version history with breaking changes noted
+
+---
+
+## Ecosystem Governance
+
+### Version Management
+
+**Semantic Versioning**: All tools use SemVer
+
+- **MAJOR**: Breaking changes
+- **MINOR**: New features, backwards compatible
+- **PATCH**: Bug fixes, backwards compatible
+
+**Version Coordination**:
+
+```
+SuperInstance Core: 0.2.0
+├── privacy-proxy: 0.2.0   (Same major.minor)
+├── knowledge-vault: 0.2.0
+├── consensus-engine: 0.1.0 (Different minor = OK)
+└── quic-tunnel: 0.2.0
+```
+
+**Compatibility Matrix**:
+
+| Core Version | Tool Versions |
+|--------------|---------------|
+| 0.2.x        | 0.2.x         |
+| 0.1.x        | 0.1.x, 0.2.x   |
+
+### Breaking Change Policy
+
+**Definition**: Breaking change = API change that requires user code modification
+
+**Process**:
+
+1. **Deprecate Old API** (MINOR version)
+   ```rust
+   #[deprecated(since = "0.2.0", note = "Use new_api instead")]
+   pub fn old_api() { ... }
    ```
 
-2. **Data Sharing**
-   - Redact PII before sharing
-   - Compliance with GDPR/CCPA
-
-3. **API Gateway**
-   ```bash
-   # Kubernetes sidecar
-   privacy-proxy server --mode gateway
+2. **Release New API** (MINOR version)
+   ```rust
+   pub fn new_api() -> Result<()> { ... }
    ```
 
-4. **Developer Tool**
-   ```bash
-   # Pre-commit hook
-   git diff | privacy-proxy redact --check-secrets
-   ```
+3. **Remove Old API** (MAJOR version)
+   - Document in CHANGELOG.md
+   - Provide migration guide
+   - Wait at least 6 months after deprecation
 
-#### Deployment
+**Communication**:
 
-- **Docker**: `privacy-proxy:latest`
-- **Homebrew**: `brew install privacy-proxy`
-- **npm**: `npm install @privacy-proxy/cli`
-- **Python**: `pip install privacy-proxy`
+- Update CHANGELOG.md
+- Create GitHub issue announcing breaking change
+- Update SuperInstance Core integration
+- Notify via repository discussions
 
----
+### Contributing Guidelines
 
-### 2. Token Vault 🔐
+**For Tool Repositories**:
 
-**Standalone Crate**: `token-vault`
+1. **Follow Standards**: Use repository template
+2. **Document**: All public APIs must have doc comments
+3. **Test**: Minimum 80% code coverage
+4. **License**: Apache 2.0
+5. **Cross-Reference**: Update "Used By", "Requires", "Complementary"
 
-**Documentation**: [tools/TOKEN_VAULT_TOOL.md](tools/TOKEN_VAULT_TOOL.md) (NEW)
+**For SuperInstance Core**:
 
-#### Purpose
+1. **Don't Break Tools**: Maintain backwards compatibility
+2. **Document Integrations**: How tools plug in
+3. **Example Apps**: Show tool composition
+4. **Update Matrix**: Keep tool relationship matrix current
 
-Secure storage and retrieval of sensitive tokens for reversible redaction.
+**For Applications**:
 
-#### API
+1. **Thin Layers**: UIs should be minimal
+2. **Tool First**: Use tools, don't reimplement
+3. **Share Back**: Contribute improvements to tools
+4. **Document**: How you use tools
 
-```rust
-//! Secure token vault for reversible redaction
+### Code of Conduct
 
-use token_vault::TokenVault;
+**Be Inclusive**: Welcome all contributors
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Create vault
-    let vault = TokenVault::open("vault.db")?;
+**Be Constructive**: Focus on what works
 
-    // Store sensitive value
-    let token = vault.store("EMAIL", "john@example.com", "session-1")?;
-    println!("Token: {}", token);
-    // Output: [EMAIL_ABC123]
+**Be Respectful**: Acknowledge different perspectives
 
-    // Retrieve value
-    if let Some(value) = vault.retrieve(&token)? {
-        println!("Retrieved: {}", value);
-        // Output: john@example.com
-    }
-
-    Ok(())
-}
-```
-
-#### CLI
-
-```bash
-# Store tokens
-token-vault store --category EMAIL --value "john@example.com"
-
-# Retrieve token
-token-vault retrieve --token [EMAIL_ABC123]
-
-# Clear session
-token-vault clear-session --session-id session-1
-
-# Export/Import
-token-vault export > vault_backup.json
-token-vault import < vault_backup.json
-```
-
-#### Use Cases
-
-1. **Application Secrets**
-   - API key storage
-   - Runtime token retrieval
-
-2. **Data Masking**
-   - Database anonymization
-   - Test data generation
-
-3. **Compliance**
-   - GDPR right to be forgotten
-   - Audit trails
+**Be Collaborative**: Build together, not alone
 
 ---
 
-### 3. Consensus Engine 🤝
+## Quick Reference
 
-**Standalone Crate**: `consensus-engine`
-
-**Documentation**: [tools/CONSENSUS_ENGINE_TOOL.md](tools/CONSENSUS_ENGINE_TOOL.md) (NEW)
-
-#### Purpose
-
-Multi-agent voting system for decision-making and quality assurance.
-
-#### API
-
-```rust
-//! Multi-agent consensus engine
-
-use consensus_engine::{Agent, ConsensusEngine, ConsensusConfig, Vote, ConsensusResult};
-
-struct SecurityAgent {
-    id: String,
-    strictness: f32,
-}
-
-#[async_trait]
-impl Agent<SecurityRequest> for SecurityAgent {
-    async fn evaluate(&self, input: SecurityRequest) -> Vote {
-        if input.risk_score > self.strictness {
-            Vote::Reject { reason: "Too risky".into() }
-        } else {
-            Vote::Approve { confidence: 0.9 }
-        }
-    }
-}
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let agents: Vec<Box<dyn Agent<SecurityRequest>>> = vec![
-        Box::new(SecurityAgent { id: "audit".into(), strictness: 0.7 }),
-        Box::new(SecurityAgent { id: "compliance".into(), strictness: 0.8 }),
-        Box::new(SecurityAgent { id: "security".into(), strictness: 0.9 }),
-    ];
-
-    let config = ConsensusConfig {
-        threshold: 0.85,
-        max_rounds: 3,
-        agent_weights: vec![0.3, 0.3, 0.4],
-    };
-
-    let mut engine = ConsensusEngine::new(agents, config);
-    let result = engine.decide(SecurityRequest { risk_score: 0.75 }).await?;
-
-    match result {
-        ConsensusResult::Approved => println!("Request approved"),
-        ConsensusResult::Rejected(reason) => println!("Rejected: {}", reason),
-        ConsensusResult::Timeout => println!("Consensus timeout"),
-    }
-
-    Ok(())
-}
-```
-
-#### CLI
+### Essential Commands
 
 ```bash
-# Create consensus configuration
-consensus-engine init --config consensus.yaml
+# === SETUP ===
+cargo install synesis-cli       # Install CLI
+synesis init                    # First-time setup
 
-# Run consensus process
-consensus-engine decide --config consensus.yaml --input request.json
+# === DEVELOPMENT ===
+cargo build --workspace         # Build all
+cargo test --workspace          # Run all tests
+cargo clippy --workspace -- -D warnings  # Lint
+cargo fmt --all                 # Format code
 
-# Add agent
-consensus-engine agents add --type security --strictness 0.8
+# === DOCUMENTATION ===
+cargo doc --no-deps --workspace --open  # Generate docs
+
+# === RELEASE ===
+cargo publish                   # Publish to crates.io
 ```
 
-#### Use Cases
+### Project Structure
 
-1. **Security Approval Systems**
-   - Multi-factor authorization
-   - Peer review automation
-   - Compliance workflows
-
-2. **Financial Trading**
-   - Risk assessment consensus
-   - Multi-strategy agreement
-
-3. **Medical Diagnosis**
-   - Second opinion automation
-   - Specialist consensus
-
-4. **Decision Support**
-   - Business decisions
-   - Policy approval
-
----
-
-### 4. Knowledge Vault (RAG System) 📚
-
-**Standalone Crate**: `knowledge-vault`
-
-**Documentation**: [tools/KNOWLEDGE_VAULT_TOOL.md](tools/KNOWLEDGE_VAULT_TOOL.md) (NEW)
-
-#### Purpose
-
-Local-first RAG (Retrieval-Augmented Generation) system for semantic search and document understanding.
-
-#### API
-
-```rust
-//! Local-first RAG system with vector search
-
-use knowledge_vault::{KnowledgeBase, Embedder, DocumentMetadata};
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Create knowledge base
-    let embedder = Box::new(PlaceholderEmbedder::new(384));
-    let mut kb = KnowledgeBase::new("./knowledge.db", embedder).await?;
-
-    // Add document
-    kb.add(
-        "Rust is a systems programming language",
-        DocumentMetadata {
-            title: "About Rust".to_string(),
-            source: "README.md".to_string(),
-            doc_type: "markdown".to_string(),
-        }
-    ).await?;
-
-    // Search similar content
-    let results = kb.search("systems programming language", 5).await?;
-    for result in results {
-        println!("Found: {} (score: {:.2})", result.content, result.score);
-    }
-
-    Ok(())
-}
+```
+/mnt/c/claudesuperinstance/
+├── CLAUDE.md                   ← This file (ecosystem guide)
+├── README.md                   ← User overview
+├── Cargo.toml                  ← Workspace config
+│
+├── crates/                     ← SuperInstance Core
+│   ├── synesis-cli/            ← CLI
+│   ├── synesis-core/           ← Core orchestrator
+│   ├── synesis-knowledge/      ← Knowledge tool
+│   ├── synesis-models/         ├── Models tool
+│   ├── synesis-privacy/        ← Privacy tool
+│   └── synesis-cloud/          ├── Cloud tool
+│
+├── docs/                       ← UI documentation
+│   ├── CLI_*.md                ← CLI docs
+│   ├── WEB_*.md                ← Web dashboard docs
+│   ├── DESKTOP_*.md            ← Desktop app docs
+│   ├── VSCODE_*.md             ← VS Code extension docs
+│   └── MOBILE_*.md             ← Mobile SDK docs
+│
+├── tools/                      ← Tool integration guides
+│   ├── PRIVACY_PROXY_TOOL.md
+│   ├── KNOWLEDGE_VAULT_TOOL.md
+│   └── ...
+│
+├── phases/                     ← Development phases
+├── status/                     ← Status reports
+└── architecture/               ← Architecture docs
 ```
 
-#### CLI
+### Quality Standards
+
+**Before Committing**:
 
 ```bash
-# Initialize knowledge base
-knowledge-vault init ./my-knowledge
+# 1. All tests pass
+cargo test --workspace
 
-# Add documents
-knowledge-vault add ./docs/ --recursive
+# 2. No warnings
+cargo clippy --workspace --all-targets -- -D warnings
 
-# Search
-knowledge-vault search "How does authentication work?"
+# 3. Formatted
+cargo fmt --all -- --check
 
-# Ask question with context
-knowledge-vault ask "Explain the architecture"
-
-# Export/Import
-knowledge-vault export > backup.json
-knowledge-vault import < backup.json
+# 4. Documented
+cargo doc --no-deps --workspace
 ```
 
-#### Use Cases
-
-1. **Documentation Search**
-   - Developer docs
-   - API references
-   - Internal wikis
-
-2. **Codebase Assistant**
-   - Code understanding
-   - Refactoring suggestions
-   - Bug detection
-
-3. **Research Assistant**
-   - Literature review
-   - Paper summarization
-   - Citation search
-
-4. **Personal Knowledge Management**
-   - Note search
-   - Email archive
-   - File organization
-
----
-
-### 5. Hardware Detector 🔧
-
-**Standalone Crate**: `hw-detect`
-
-**Documentation**: [tools/HARDWARE_DETECTOR_TOOL.md](tools/HARDWARE_DETECTOR_TOOL.md) (NEW)
-
-#### Purpose
-
-Cross-platform hardware detection and capability assessment.
-
-#### API
-
-```rust
-//! Cross-platform hardware detection
-
-use hw_detect::{HardwareDetector, HardwareInfo, Recommendation};
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Detect all hardware
-    let hw = HardwareDetector::detect()?;
-    println!("Hardware Info:");
-    println!("  CPU: {}", hw.cpu.name);
-    println!("  GPU: {} ({} MB)", hw.gpu.first().map(|g|g.name.as_str()).unwrap_or("None"));
-    println!("  RAM: {} GB", hw.memory.total_gb);
-
-    // Get recommendations
-    let rec = hw.recommendation()?;
-    println!("  Recommended Model: {}", rec.model);
-    println!("  Can Run LLM: {}", rec.can_run_llm);
-
-    // Export as JSON
-    let json = hw.to_json(&hw)?;
-    println!("JSON: {}", json);
-
-    Ok(())
-}
-```
-
-#### CLI
-
-```bash
-# Detect hardware
-hw-detect
-
-# JSON output
-hw-detect --json > hardware.json
-
-# Recommendations
-hw-detect recommend
-
-# Compare systems
-hw-detect compare system1.json system2.json
-```
-
-#### Use Cases
-
-1. **Game Launchers**
-   - Detect system capabilities
-   - Adjust graphics settings
-
-2. **DevOps Tools**
-   - Container resource allocation
-   - Kubernetes scheduling
-
-3. **Software Installers**
-   - Check requirements
-   - Warn about incompatibility
-
-4. **Benchmarking**
-   - Hardware comparison
-   - Performance regression detection
-
----
-
-### 6. Model Registry 📦
-
-**Standalone Crate**: `model-registry`
-
-**Documentation**: [tools/MODEL_REGISTRY_TOOL.md](tools/MODEL_REGISTRY_TOOL.md) (NEW)
-
-#### Purpose
-
-Model versioning, management, and marketplace functionality.
-
-#### API
-
-```rust
-//! Model versioning and management
-
-use model_registry::{ModelRegistry, ModelMetadata, ModelFilters};
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut registry = ModelRegistry::open("./models.db")?;
-
-    // Register model
-    let model = ModelMetadata {
-        id: "phi-3-mini".to_string(),
-        name: "Phi-3 Mini".to_string(),
-        version: "2.6".to_string(),
-        size_bytes: 2_300_000_000,
-        quantization: "Q4_K_M".to_string(),
-        parameters: ModelParameters {
-            context_length: 2048,
-            max_tokens: 2048,
-            embedding_size: 384,
-        },
-    };
-
-    registry.register(model).await?;
-
-    // List models
-    let filters = ModelFilters {
-        min_size: Some(1_000_000_000),
-        max_size: Some(5_000_000_000),
-        quantization: vec!["Q4_K_M".to_string()],
-        ..Default::default()
-    };
-
-    let models = registry.list(filters)?;
-    for model in models {
-        println!("{}: {} ({})", model.name, model.version);
-    }
-
-    Ok(())
-}
-```
-
-#### CLI
-
-```bash
-# Register model
-model-registry register \
-  --name "Phi-3 Mini" \
-  --version "2.6" \
-  --size 2300000000 \
-  --quantization Q4_K_M
-
-# Download model
-model-registry download phi-3-mini
-
-# List models
-model-registry list --tag "small"
-
-# Check updates
-model-registry check-updates phi-3-mini
-```
-
-#### Use Cases
-
-1. **MLOps Platforms**
-   - Model versioning
-   - Experiment tracking
-
-2. **App Stores**
-   - HuggingFace alternative
-   - Model marketplace
-
-3. **Enterprise**
-   - Approval workflows
-   - Access control
-
----
-
-### 7. QUIC Tunnel 🚇
-
-**Standalone Crate**: `quic-tunnel`
-
-**Documentation**: [tools/QUIC_TUNNEL_TOOL.md](tools/QUIC_TUNNEL_TOOL.md) (NEW)
-
-#### Purpose
-
-Secure, low-latency bidirectional streaming with QUIC protocol.
-
-#### API
-
-```rust
-//! Secure QUIC tunnel with mTLS
-
-use quic_tunnel::{QuicTunnel, TunnelConfig, TunnelEvent};
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = TunnelConfig {
-        server_addr: "tunnel.superinstance.ai:443".to_string(),
-        device_id: "device-123".to_string(),
-        cert_path: "./cert.pem".into(),
-        key_path: "./key.pem".into(),
-        ..Default::default()
-    };
-
-    let mut tunnel = QuicTunnel::new(config).await?;
-    tunnel.connect().await?;
-
-    // Open stream
-    let mut stream = tunnel.open_stream().await?;
-
-    // Send message
-    stream.send(b"Hello, world!").await?;
-
-    // Receive message
-    let data = stream.recv().await?;
-    println!("Received: {}", String::from_utf8(&data)?);
-
-    Ok(())
-}
-```
-
-#### CLI
-
-```bash
-# Connect to server
-quic-tunnel client --server tunnel.superinstance.ai:443
-
-# Start server
-quic-tunnel server --port 443 --cert cert.pem --key key.pem
-
-# Test connection
-quic-tunnel ping tunnel.superinstance.ai:443
-```
-
-#### Use Cases
-
-1. **Secure Remote Access**
-   - Alternative to VPN
-   - IoT device connectivity
-
-2. **Microservice Mesh**
-   - Service-to-service communication
-   - Service discovery
-
-3. **Streaming**
-   - Video streaming
-   - Real-time data
-
-4. **Gaming**
-   - Low-latency multiplayer
-   - UDP-friendly transport
-
----
-
-### 8. Billing System 💰
-
-**Standalone Crate**: `metered-billing`
-
-**Documentation**: [tools/METERED_BILLING_TOOL.md](tools/METERED_BILLING_TOOL.md) (NEW)
-
-#### Purpose
-
-Metered usage tracking, cost calculation, and invoice generation.
-
-#### API
-
-```rust
-//! Metered billing with local-first tracking
-
-use metered_billing::{BillingEngine, UsageEvent, PricingTier, Money};
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut billing = BillingEngine::new(
-        PricingTier::Free {
-            monthly_limit_cents: 100_00, // $100/month free
-        }
-    );
-
-    // Record usage
-    billing.record(UsageEvent {
-        event_type: EventType::Query,
-        tokens_used: 150,
-        model: "phi-3-mini".to_string(),
-    }).await?;
-
-    // Check unbilled total
-    let unbilled = billing.unbilled();
-    println!("Unbilled: ${}", unbilled);
-
-    // Generate invoice
-    let invoice = billing.invoice().await?;
-    println!("Invoice: ${}", invoice.total);
-
-    Ok(())
-}
-```
-
-#### CLI
-
-```bash
-# Initialize billing
-metered-billing init --tier free
-
-# Record usage
-metered-billing record api-call --tokens 1000
-
-# Check balance
-metered-billing balance
-
-# Generate invoice
-metered-billing invoice --month 2024-01
-
-# Sync with cloud
-metered-billing sync
-```
-
-#### Use Cases
-
-1. **API Billing**
-   - Meter API usage
-   - Tiered pricing
-
-2. **SaaS Applications**
-   - Subscription management
-   - Usage-based billing
-
-3. **Marketplaces**
-   - Stripe Connect alternative
-   - Multi-tenant billing
-
-4. **Cost Monitoring**
-   - Budget alerts
-   - Cost optimization
-
----
-
-## Development Methodology
-
-### Core Principles
-
-1. **Modular First** - Build independent, reusable components
-2. **Plugin Architecture** - Easy to swap backends and tools
-3. **Privacy by Design** - Never compromise on data protection
-4. **Open Standards** - Use OpenAI-compatible APIs
-5. **Documentation-Driven** - Document before, during, after
-6. **Test Coverage** - 100% coverage requirement
-
-### The Ralph Loop
-
-```bash
-while not complete:
-    1. Design architecture (document in CLAUDE.md)
-    2. Create stub implementation (minimal viable product)
-    3. Add comprehensive tests
-    4. Write user guides and examples
-    5. Iterate based on feedback
-    6. Commit and push to repository
-```
-
-### Quality Gates
-
-All code must pass:
+**Code Quality Gates**:
 - ✅ All tests passing (100%)
 - ✅ Zero compiler warnings
 - ✅ Zero clippy warnings
 - ✅ All public APIs documented
 - ✅ Thread safety verified
+
+### Repository Links
+
+**Core**:
+- SuperInstance: https://github.com/SuperInstance/Tripartite1
+
+**Tools**:
+- privacy-proxy: https://github.com/SuperInstance/privacy-proxy
+- knowledge-vault: https://github.com/SuperInstance/knowledge-vault
+- quic-tunnel: https://github.com/SuperInstance/quic-tunnel
+- consensus-engine: https://github.com/SuperInstance/consensus-engine
+- hw-detect: https://github.com/SuperInstance/hw-detect
+- model-registry: https://github.com/SuperInstance/model-registry
+- ollama-bridge: https://github.com/SuperInstance/ollama-bridge
+- lmstudio-bridge: https://github.com/SuperInstance/lmstudio-bridge
+- localai-adapter: https://github.com/SuperInstance/localai-adapter
+- metered-billing: https://github.com/SuperInstance/metered-billing
+- token-vault: https://github.com/SuperInstance/token-vault
+
+**Integration Tools**:
+- vllm-bridge: https://github.com/SuperInstance/vllm-bridge
+- nemo-bridge: https://github.com/SuperInstance/nemo-bridge
+- vila-bridge: https://github.com/SuperInstance/vila-bridge
 
 ---
 
@@ -1697,151 +1857,143 @@ All code must pass:
 
 **Test Results**: 68/68 cloud tests passing
 
-### Phase 3: Multi-Interface Expansion 🔄 IN PROGRESS
+### Phase 3: Tool Ecosystem 🔄 IN PROGRESS
 
-**Planned**:
-- [ ] Web Dashboard architecture complete
-- [ ] Desktop app foundation
-- [ ] VS Code extension foundation
-- [ ] Independent tool extraction begins
-- [ ] Plug-and-play integrations start
+**Completed**:
+- ✅ Ecosystem strategy defined
+- ✅ Tool extraction criteria established
+- ✅ Repository templates created
+- ✅ Documentation standards set
 
----
+**In Progress**:
+- 🔄 Extract tools to independent repos
+- 🔄 Document UI architectures
+- 🔄 Build plug-and-play integrations
 
-## Quick Reference
-
-### Essential Commands
-
-```bash
-# === SETUP ===
-synesis init                              # First-time setup
-cargo test --workspace                    # Run all tests
-cargo clippy --workspace -- -D warnings    # Lint check
-cargo fmt --all                          # Format code
-
-# === DEVELOPMENT ===
-cargo build --workspace --all-targets      # Build all
-cargo test --package <crate>                # Test one crate
-cargo doc --no-deps --workspace            # Generate docs
-
-# === DEBUGGING ===
-RUST_LOG=debug cargo test --package <crate>  # With traces
-cargo test --workspace -- --nocapture       # Show output
-
-# === RELEASE ===
-cargo build --release                       # Optimized build
-upx target/release/synesis               # Upload binary
-```
-
-### Project Structure
-
-```
-/mnt/c/claudesuperinstance/
-├── CLAUDE.md                               ← This file
-├── README.md                                ← User overview
-├── Cargo.toml                               ← Workspace config
-│
-├── crates/                                 ← Rust workspace
-│   ├── synesis-cli/                        ← CLI
-│   ├── synesis-core/                       ← Core (tripartite)
-│   ├── synesis-knowledge/                  ← Knowledge (RAG)
-│   ├── synesis-models/                        ← Models (hardware)
-│   ├── synesis-privacy/                     ← Privacy (redaction)
-│   └── synesis-cloud/                        ← Cloud (QUIC)
-│
-├── docs/                                   ← User documentation
-├── phases/                                 ← Phase roadmaps
-├── status/                                 ← Status reports
-├── tools/                                  ← Tool guides (NEW)
-└── architecture/                          └── Architecture docs
-```
+**Next Steps**:
+1. Extract privacy-proxy to standalone repo
+2. Extract knowledge-vault to standalone repo
+3. Extract consensus-engine to standalone repo
+4. Complete UI architecture documentation
+5. Build tool showcase applications
 
 ---
 
-## Commit & Push Strategy
+## Key Principles
 
-### Before Committing
+### Tools First, Applications Second
 
-```bash
-# 1. Run full test suite
-cargo test --workspace
+**Don't build a monolith. Build tools.**
 
-# 2. Check for warnings
-cargo clippy --workspace --all-targets -- -D warnings
+Monoliths are hard to reuse. Tools are easy to compose.
 
-# 3. Format code
-cargo fmt --all
+**Example**:
+- ❌ Don't: Build "SuperInstance App" with privacy redaction built in
+- ✅ Do: Build "privacy-proxy" tool, then use it in SuperInstance App
 
-# 4. Check documentation
-cargo doc --no-deps --workspace 2>&1 | grep -c "warning"
+### Cross-Reference Everything
+
+**Show, don't just tell.**
+
+Every tool should show:
+- Where it's used
+- What it requires
+- What complements it
+
+**Benefit**: Developers discover related tools organically.
+
+### Applications Are Thin Layers
+
+**UIs should be minimal composition layers.**
+
+Applications shouldn't reimplement tools—they should compose them.
+
+**Example**:
+```rust
+// Thin application layer
+use privacy_proxy::Redactor;
+use knowledge_vault::KnowledgeBase;
+
+fn main() {
+    // Compose tools
+    let redactor = Redactor::new()?;
+    let kb = KnowledgeBase::new()?;
+
+    // Do something useful
+}
 ```
 
-### Commit Message Format
+### User Choice Over Lock-In
 
-```
-<type>: <subject>
+**Let users assemble their stack.**
 
-<details>
-<summary>
-Brief summary of changes
-</summary>
+Don't force all-or-nothing adoption. Let users pick what they need.
 
-<body>
-Detailed explanation of what was changed and why
-</body>
-
-<footer>
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-</footer>
-```
-
-### Push Strategy
-
-```bash
-# Push to main branch
-git push origin main
-
-# Or for specific branch
-git push origin feature-branch
-```
+**Example**:
+- User wants just privacy redaction? Install privacy-proxy
+- User wants RAG system? Install knowledge-vault
+- User wants everything? Install SuperInstance Core
 
 ---
 
-## Key Files to Reference
+## FAQ
 
-**Architecture**:
-- `CLAUDE.md` (this file) - Complete development guide
-- `README.md` - Project overview
-- `ARCHITECTURE.md` - System architecture (if exists)
+### Why not keep everything in one repo?
 
-**Phase Planning**:
-- `phases/PHASE_1_LOCAL_KERNEL.md`
-- `phases/PHASE_2_DETAILED_ROADMAP.md`
+**Single repo** (monorepo) vs **Multiple repos** (polyrepo):
 
-**Status Reports**:
-- `status/PHASE_2_COMPLETE.md`
-- `status/FINAL_COMPREHENSIVE_IMPROVEMENTS_REPORT.md`
+| Aspect | Monorepo | Polyrepo (Our Choice) |
+|--------|----------|----------------------|
+| **Discovery** | Hard to find components | Each tool has its own presence |
+| **Adoption** | All-or-nothing | Adopt piece by piece |
+| **Independence** | Coupled releases | Independent versions |
+| **Contributors** | Intimidating | Focused, approachable |
+| **Search** | Mixed results | Tool-specific results |
 
-**Documentation**:
-- `docs/CLI_USER_GUIDE.md`
-- `docs/TROUBLESHOOTING.md`
-- `docs/USAGE_EXAMPLES.md`
+### How do tools stay in sync?
 
-**Tool Guides** (NEW):
-- `tools/PRIVACY_PROXY_TOOL.md`
-- `tools/TOKEN_VAULT_TOOL.md`
-- `tools/CONSENSUS_ENGINE_TOOL.md`
-- `tools/KNOWLEDGE_VAULT_TOOL.md`
-- `tools/HARDWARE_DETECTOR_TOOL.md`
-- `tools/MODEL_REGISTRY_TOOL.md`
-- `tools/QUIC_TUNNEL_TOOL.md`
-- `tools/METERED_BILLING_TOOL.md`
-- `tools/OLLAMA_INTEGRATION.md`
-- `tools/LM_STUDIO_INTEGRATION.md`
-- `tools/LOCALAI_INTEGRATION.md`
-- `tools/VLLM_INTEGRATION.md`
-- `tools/NEMO_INTEGRATION.md`
-- `tools/VILA_INTEGRATION.md`
+**SemVer and compatibility matrix**:
+
+- Tools use semantic versioning
+- Core specifies compatible versions
+- Breaking changes documented in CHANGELOG
+
+**Example**:
+```toml
+# Core depends on specific tool versions
+[dependencies]
+privacy-proxy = "0.2"    # Compatible with 0.2.x
+knowledge-vault = "0.2.1" # Exact version or range
+```
+
+### What if two tools have conflicting dependencies?
+
+**Rust's dependency resolver handles this**:
+
+```toml
+# Tool A depends on dependency X v1.0
+# Tool B depends on dependency X v2.0
+# Rust compiles both versions separately
+# No conflict at runtime (different namespaces)
+```
+
+### How do I contribute to the ecosystem?
+
+1. **Identify a tool to extract**: Look for generalizable code
+2. **Create repository**: Use our template
+3. **Extract and test**: Move code, add tests
+4. **Document**: Add integration docs
+5. **Publish**: Release on crates.io
+6. **Cross-reference**: Update related tools
+
+### Can I build a commercial app with these tools?
+
+**Yes! Apache 2.0 license permits commercial use**.
+
+Requirements:
+- Keep license notices
+- State changes (but don't imply endorsement)
+- No liability warranty
 
 ---
 
@@ -1850,8 +2002,9 @@ git push origin feature-branch
 **Tests**: 298/298 passing (100%)
 **Status**: ✅ PRODUCTION READY
 
-**Next Phase**: Multi-Interface Implementation & Tool Extraction
+**Next Phase**: Tool Ecosystem Expansion & UI Implementation
 
 ---
 
-*For detailed documentation on specific features, see the corresponding files listed above.*
+*For detailed documentation on specific tools, see their respective repositories.*
+*For UI architecture docs, see docs/UI_*.md files.*
