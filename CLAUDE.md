@@ -1,2010 +1,2087 @@
-# SuperInstance AI - Ecosystem Development Guide
+# SuperInstance Build Orchestrator
 
-> **Current Status**: Multi-Interface Expansion Phase (2026-01-08)
-> **Tests**: 298/298 passing (100%)
-> **Repository**: https://github.com/SuperInstance/Tripartite1
-> **Version**: v0.2.0
-> **Strategy**: Tools First, Applications Second
-
----
-
-## Executive Summary
-
-SuperInstance is a **tool ecosystem for building AI-powered applications**, not just a single application. We build independent, reusable tools that work alone or combine into powerful applications.
-
-**Core Philosophy**: "Build tools, assemble applications."
-
-**Our Approach**:
-1. **Independent Tools**: Each tool is valuable on its own
-2. **Cross-Integration**: Tools showcase each other ("Used by", "Requires", "Complementary to")
-3. **User Choice**: Users assemble their stack from our tools
-4. **Applications as Compositions**: UIs are thin layers over our tools
-
-**The Value Proposition**: Developers get composable AI infrastructure; users get privacy-first, local-first AI with optional cloud power.
+> **Orchestration Strategy**: 25 Rounds × 4 Agents = 100 Agent Sessions
+> **Current Round**: Round 1
+> **Status**: 🔄 SPAWNING AGENTS NOW
+> **Auto-Accept**: Enabled for all agent spawning
+> **Repo Strategy**: Create independent repos for useful tools, push when ready
 
 ---
 
-## Table of Contents
+## Orchestrator Role
 
-1. [Ecosystem Overview](#ecosystem-overview)
-2. [Independent Tool Repositories](#independent-tool-repositories)
-3. [SuperInstance Core](#superinstance-core)
-4. [UI Architectures](#ui-architectures)
-5. [Development Workflow](#development-workflow)
-6. [Tool Repository Template](#tool-repository-template)
-7. [Ecosystem Governance](#ecosystem-governance)
-8. [Quick Reference](#quick-reference)
+You are the **Build Orchestrator**. Your job is to:
 
----
-
-## Ecosystem Overview
-
-### The Tool-First Philosophy
-
-```
-Traditional Approach:
-┌─────────────────────────────────────┐
-│     One Giant Application            │
-│  ┌─────────┬─────────┬─────────┐   │
-│  │ Feature │ Feature │ Feature │   │
-│  │   A     │   B     │   C     │   │
-│  └─────────┴─────────┴─────────┘   │
-│         │       │       │          │
-│         └───────┴───────┘          │
-│           Monolithic Core           │
-└─────────────────────────────────────┘
-Problems: Hard to reuse, tightly coupled, all-or-nothing
-
-
-SuperInstance Approach:
-┌─────────────────────────────────────────────────────┐
-│              Tool Ecosystem                          │
-│                                                      │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐         │
-│  │   Tool   │  │   Tool   │  │   Tool   │         │
-│  │     A    │  │     B    │  │     C    │         │
-│  │          │  │          │  │          │         │
-│  │  Used by │  │Requires  │  │Complement│         │
-│  │  B, C, D │  │   A, E   │  │    A, B  │         │
-│  └──────────┘  └──────────┘  └──────────┘         │
-│       │             │             │                │
-│       └─────────────┴─────────────┘                │
-│                     │                               │
-│              Users Assemble                        │
-│              Their Stack                           │
-│                                                      │
-│  ┌─────────────────────────────────────┐          │
-│  │  Applications (Thin Composition     │          │
-│  │              Layers)                │          │
-│  │  ┌──────┐  ┌──────┐  ┌──────┐      │          │
-│  │  │ CLI  │  │ Web  │  │Desktop│     │          │
-│  │  └──────┘  └──────┘  └──────┘      │          │
-│  └─────────────────────────────────────┘          │
-└─────────────────────────────────────────────────────┘
-Benefits: Reusable, composable, flexible adoption
-```
-
-### Ecosystem Map
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                    SUPERINSTANCE ECOSYSTEM                    │
-│                                                                │
-│  ┌────────────────────────────────────────────────────────┐  │
-│  │              Core Infrastructure Tools                 │  │
-│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐      │  │
-│  │  │ Privacy   │  │ Knowledge  │  │  QUIC      │      │  │
-│  │  │ Proxy     │  │ Vault      │  │ Tunnel     │      │  │
-│  │  └────────────┘  └────────────┘  └────────────┘      │  │
-│  └────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  ┌────────────────────────────────────────────────────────┐  │
-│  │              AI Processing Tools                       │  │
-│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐      │  │
-│  │  │ Consensus  │  │ Hardware   │  │ Model      │      │  │
-│  │  │ Engine     │  │ Detector   │  │ Registry   │      │  │
-│  │  └────────────┘  └────────────┘  └────────────┘      │  │
-│  └────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  ┌────────────────────────────────────────────────────────┐  │
-│  │              Integration Tools                         │  │
-│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐      │  │
-│  │  │ Ollama     │  │ LM Studio  │  │ LocalAI    │      │  │
-│  │  │ Bridge     │  │ Bridge     │  │ Adapter    │      │  │
-│  │  └────────────┘  └────────────┘  └────────────┘      │  │
-│  └────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  ┌────────────────────────────────────────────────────────┐  │
-│  │              Business Logic Tools                      │  │
-│  │  ┌────────────┐  ┌────────────┐                       │  │
-│  │  │ Billing    │  │ Token      │                       │  │
-│  │  │ System     │  │ Vault      │                       │  │
-│  │  └────────────┘  └────────────┘                       │  │
-│  └────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  ┌────────────────────────────────────────────────────────┐  │
-│  │              Application Layers (Thin)                 │  │
-│  │  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐   │  │
-│  │  │ CLI  │  │ Web  │  │Desktop│  │VSCode│  │Mobile│   │  │
-│  │  └──────┘  └──────┘  └──────┘  └──────┘  └──────┘   │  │
-│  └────────────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────────────┘
-```
-
-### Tool Relationship Example
-
-```
-Privacy Proxy Tool
-├── Used by:
-│   ├── Knowledge Vault (redact before indexing)
-│   ├── Consensus Engine (protect sensitive inputs)
-│   ├── Cloud Escalation (redact before sending)
-│   └── [Your Application]
-│
-├── Requires:
-│   └── Token Vault (secure token storage)
-│
-└── Complementary tools:
-    ├── Billing System (track redaction operations)
-    └── Hardware Detector (optimize for system resources)
-```
+1. **Guide 4-agent teams through specific build tasks**
+2. **Monitor agent progress and provide assistance**
+3. **Validate round completion before proceeding**
+4. **Create GitHub repos for independent tools**
+5. **Push repos when they're production-ready**
+6. **Plan and spawn next round of agents**
+7. **Maintain ecosystem consistency across all rounds**
 
 ---
 
-## Independent Tool Repositories
-
-### Core Infrastructure Tools
-
-#### 1. Privacy Proxy (Redaction System) 🛡️
-
-**Repository**: `https://github.com/SuperInstance/privacy-proxy`
-
-**Purpose**: Redact PII, secrets, and sensitive data with reversible tokenization.
-
-**Key Features**:
-- 18+ built-in redaction patterns (email, phone, SSN, API keys, etc.)
-- Reversible via token vault
-- Stream processing support
-- Zero-copy architecture
-
-**Used By**:
-- Knowledge Vault (redact before indexing)
-- Cloud Escalation (redact before cloud transmission)
-- Consensus Engine (protect sensitive inputs)
-- Any application needing PII protection
-
-**Requires**:
-- Token Vault
-
-**Complementary Tools**:
-- Billing System (track redaction operations)
-- Hardware Detector (optimize for system resources)
-
-**Quick Start**:
-```bash
-# Install
-cargo install privacy-proxy
-
-# Redact text
-privacy-proxy redact "Contact john@example.com" --vault vault.db
-
-# Server mode (microservice)
-privacy-proxy server --port 8080
-```
-
-**Documentation**: [docs/PRIVACY_PROXY_TOOL.md](docs/PRIVACY_PROXY_TOOL.md)
-
----
-
-#### 2. Knowledge Vault (RAG System) 📚
-
-**Repository**: `https://github.com/SuperInstance/knowledge-vault`
-
-**Purpose**: Local-first RAG system with vector search and semantic understanding.
-
-**Key Features**:
-- SQLite-VSS integration (portable vector database)
-- BGE-Micro embeddings (384 dimensions)
-- File watcher auto-indexing
-- Semantic search with scoring
-- Chunk extraction with metadata
-
-**Used By**:
-- SuperInstance CLI (knowledge base)
-- Web Dashboard (document browser)
-- VS Code Extension (codebase assistant)
-- Document management systems
-
-**Requires**:
-- Nothing (standalone)
-
-**Complementary Tools**:
-- Privacy Proxy (redact before indexing)
-- Hardware Detector (optimize embedding performance)
-- Model Registry (manage embedding models)
-
-**Quick Start**:
-```bash
-# Install
-cargo install knowledge-vault
-
-# Initialize vault
-knowledge-vault init ./my-knowledge
-
-# Add documents
-knowledge-vault add ./docs/ --recursive
-
-# Search
-knowledge-vault search "How does authentication work?"
-```
-
-**Documentation**: [docs/KNOWLEDGE_VAULT_TOOL.md](docs/KNOWLEDGE_VAULT_TOOL.md)
-
----
-
-#### 3. QUIC Tunnel 🚇
-
-**Repository**: `https://github.com/SuperInstance/quic-tunnel`
-
-**Purpose**: Secure, low-latency bidirectional streaming with QUIC protocol.
-
-**Key Features**:
-- mTLS authentication
-- Bidirectional streaming
-- Connection pooling
-- Automatic reconnection
-- Heartbeat & telemetry
-
-**Used By**:
-- Cloud Escalation (secure tunnel to cloud)
-- Remote device access
-- Microservice mesh
-- Real-time streaming applications
-
-**Requires**:
-- Nothing (standalone)
-
-**Complementary Tools**:
-- Privacy Proxy (redact before transmission)
-- Billing System (track bandwidth usage)
-
-**Quick Start**:
-```bash
-# Install
-cargo install quic-tunnel
-
-# Start client
-quic-tunnel client --server tunnel.superinstance.ai:443
-
-# Start server
-quic-tunnel server --port 443 --cert cert.pem --key key.pem
-```
-
-**Documentation**: [docs/QUIC_TUNNEL_TOOL.md](docs/QUIC_TUNNEL_TOOL.md)
-
----
-
-### AI Processing Tools
-
-#### 4. Consensus Engine 🤝
-
-**Repository**: `https://github.com/SuperInstance/consensus-engine`
-
-**Purpose**: Multi-agent voting system for decision-making and quality assurance.
-
-**Key Features**:
-- Pluggable agents
-- Configurable thresholds
-- Multi-round negotiation
-- Weighted voting
-- Timeout handling
-
-**Used By**:
-- SuperInstance Core (tripartite council)
-- Security approval systems
-- Financial trading systems
-- Medical diagnosis support
-
-**Requires**:
-- Nothing (standalone)
-
-**Complementary Tools**:
-- Privacy Proxy (protect agent inputs)
-- Billing System (track consensus operations)
-
-**Quick Start**:
-```bash
-# Install
-cargo install consensus-engine
-
-# Run consensus
-consensus-engine decide --config consensus.yaml --input request.json
-```
-
-**Documentation**: [docs/CONSENSUS_ENGINE_TOOL.md](docs/CONSENSUS_ENGINE_TOOL.md)
-
----
-
-#### 5. Hardware Detector 🔧
-
-**Repository**: `https://github.com/SuperInstance/hw-detect`
-
-**Purpose**: Cross-platform hardware detection and capability assessment.
-
-**Key Features**:
-- CPU detection (cores, features)
-- GPU detection (VRAM, CUDA, Metal)
-- RAM analysis
-- Model recommendations
-- JSON export
-
-**Used By**:
-- SuperInstance CLI (auto-configuration)
-- Model Registry (match hardware to models)
-- Game launchers
-- DevOps tools
-
-**Requires**:
-- Nothing (standalone)
-
-**Complementary Tools**:
-- Model Registry (recommend models)
-- Knowledge Vault (optimize embeddings)
-
-**Quick Start**:
-```bash
-# Install
-cargo install hw-detect
-
-# Detect hardware
-hw-detect
-
-# JSON output
-hw-detect --json > hardware.json
-
-# Recommendations
-hw-detect recommend
-```
-
-**Documentation**: [docs/HARDWARE_DETECTOR_TOOL.md](docs/HARDWARE_DETECTOR_TOOL.md)
-
----
-
-#### 6. Model Registry 📦
-
-**Repository**: `https://github.com/SuperInstance/model-registry`
-
-**Purpose**: Model versioning, management, and marketplace functionality.
-
-**Key Features**:
-- Model metadata storage
-- Version tracking
-- Download management
-- Hardware compatibility
-- Search & filtering
-
-**Used By**:
-- SuperInstance CLI (model management)
-- Ollama Bridge (model discovery)
-- LM Studio Bridge (model discovery)
-- MLOps platforms
-
-**Requires**:
-- Hardware Detector (compatibility checks)
-
-**Complementary Tools**:
-- Knowledge Vault (store model docs)
-- Billing System (track model usage)
-
-**Quick Start**:
-```bash
-# Install
-cargo install model-registry
-
-# Register model
-model-registry register --name "Phi-3 Mini" --version "2.6"
-
-# Download model
-model-registry download phi-3-mini
-
-# List models
-model-registry list --tag "small"
-```
-
-**Documentation**: [docs/MODEL_REGISTRY_TOOL.md](docs/MODEL_REGISTRY_TOOL.md)
-
----
-
-### Integration Tools
-
-#### 7. Ollama Bridge 🦙
-
-**Repository**: `https://github.com/SuperInstance/ollama-bridge`
-
-**Purpose**: Integration with Ollama local model server.
-
-**Key Features**:
-- OpenAI-compatible API
-- Model management
-- GPU acceleration
-- Multi-model support
-
-**Used By**:
-- SuperInstance Core (local inference backend)
-- Any application needing local LLMs
-
-**Requires**:
-- Ollama (external dependency)
-
-**Complementary Tools**:
-- Model Registry (model discovery)
-- Hardware Detector (GPU detection)
-
-**Quick Start**:
-```bash
-# Install
-cargo install ollama-bridge
-
-# Pull and use Ollama models
-ollama-bridge pull llama3:70b
-ollama-bridge generate "Explain quantum computing"
-```
-
-**Documentation**: [tools/OLLAMA_INTEGRATION.md](tools/OLLAMA_INTEGRATION.md)
-
----
-
-#### 8. LM Studio Bridge 🎨
-
-**Repository**: `https://github.com/SuperInstance/lmstudio-bridge`
-
-**Purpose**: Integration with LM Studio desktop GUI.
-
-**Key Features**:
-- Auto-discovery (probes localhost ports)
-- OpenAI-compatible API
-- Model detection
-- Simple configuration
-
-**Used By**:
-- SuperInstance Core (local inference backend)
-- GUI-first workflows
-
-**Requires**:
-- LM Studio (external application)
-
-**Complementary Tools**:
-- Model Registry (model metadata)
-- Hardware Detector (hardware checks)
-
-**Quick Start**:
-```bash
-# Install
-cargo install lmstudio-bridge
-
-# Auto-detect LM Studio
-lmstudio-bridge detect
-
-# Generate text
-lmstudio-bridge generate "Explain Rust's ownership"
-```
-
-**Documentation**: [tools/LM_STUDIO_INTEGRATION.md](tools/LM_STUDIO_INTEGRATION.md)
-
----
-
-#### 9. LocalAI Adapter 🔌
-
-**Repository**: `https://github.com/SuperInstance/localai-adapter`
-
-**Purpose**: OpenAI-compatible API wrapper for multiple local inference tools.
-
-**Key Features**:
-- OpenAI API compatibility
-- Works with multiple backends
-- Chat completions
-- Embeddings support
-
-**Used By**:
-- SuperInstance Core (unified interface)
-- Any OpenAI-compatible application
-
-**Requires**:
-- LocalAI server (external dependency)
-
-**Complementary Tools**:
-- Model Registry (model management)
-
-**Quick Start**:
-```bash
-# Install
-cargo install localai-adapter
-
-# Start LocalAI server
-localai-server --models-path ./models --port 8080
-
-# Use via adapter
-localai-adapter chat --endpoint http://localhost:8080
-```
-
-**Documentation**: [tools/LOCALAI_INTEGRATION.md](tools/LOCALAI_INTEGRATION.md)
-
----
-
-### Business Logic Tools
-
-#### 10. Billing System 💰
-
-**Repository**: `https://github.com/SuperInstance/metered-billing`
-
-**Purpose**: Metered usage tracking, cost calculation, and invoice generation.
-
-**Key Features**:
-- Local-first ledger
-- Pricing tiers
-- Usage events
-- Invoice generation
-- Cost monitoring
-
-**Used By**:
-- SuperInstance Cloud (usage tracking)
-- API billing systems
-- SaaS applications
-- Marketplaces
-
-**Requires**:
-- Nothing (standalone)
-
-**Complementary Tools**:
-- QUIC Tunnel (sync to cloud)
-- Model Registry (track model costs)
-
-**Quick Start**:
-```bash
-# Install
-cargo install metered-billing
-
-# Initialize billing
-metered-billing init --tier free
-
-# Record usage
-metered-billing record api-call --tokens 1000
-
-# Check balance
-metered-billing balance
-```
-
-**Documentation**: [docs/METERED_BILLING_TOOL.md](docs/METERED_BILLING_TOOL.md)
-
----
-
-#### 11. Token Vault 🔐
-
-**Repository**: `https://github.com/SuperInstance/token-vault`
-
-**Purpose**: Secure storage and retrieval of sensitive tokens.
-
-**Key Features**:
-- SQLite storage
-- Category-based organization
-- Session management
-- Reversible redaction
-- Audit trails
-
-**Used By**:
-- Privacy Proxy (token storage)
-- Application secrets management
-- Data masking systems
-- Compliance tools
-
-**Requires**:
-- Nothing (standalone)
-
-**Complementary Tools**:
-- Privacy Proxy (primary use case)
-- Billing System (audit trails)
-
-**Quick Start**:
-```bash
-# Install
-cargo install token-vault
-
-# Store token
-token-vault store --category EMAIL --value "john@example.com"
-
-# Retrieve token
-token-vault retrieve --token [EMAIL_ABC123]
-```
-
-**Documentation**: [docs/TOKEN_VAULT_TOOL.md](docs/TOKEN_VAULT_TOOL.md)
-
----
-
-### Tool Integration Matrix
+## Round Status Dashboard
 
 ```
-┌──────────────────┬─────────────────────────────────────────────┐
-│ Tool             │ Used By Applications                       │
-├──────────────────┼─────────────────────────────────────────────┤
-│ Privacy Proxy    │ Knowledge Vault, Consensus, Cloud, Apps     │
-│ Knowledge Vault  │ CLI, Web, VS Code, Document Managers       │
-│ QUIC Tunnel      │ Cloud Escalation, Remote Access, Streaming  │
-│ Consensus Engine │ SuperInstance Core, Security, Finance       │
-│ Hardware Detect  │ All applications (auto-config)              │
-│ Model Registry   │ CLI, Ollama, LM Studio, MLOps              │
-│ Ollama Bridge    │ SuperInstance Core, LLM Apps               │
-│ LM Studio Bridge │ GUI-first workflows, Dev Tools              │
-│ LocalAI Adapter  │ OpenAI-compatible apps                     │
-│ Billing System   │ Cloud, SaaS, API Services                  │
-│ Token Vault      │ Privacy Proxy, Secrets Management          │
-└──────────────────┴─────────────────────────────────────────────┘
-
-┌──────────────────┬─────────────────────────────────────────────┐
-│ Tool             │ Requires                                   │
-├──────────────────┼─────────────────────────────────────────────┤
-│ Privacy Proxy    │ Token Vault                                │
-│ Knowledge Vault  │ None                                       │
-│ QUIC Tunnel      │ None                                       │
-│ Consensus Engine │ None                                       │
-│ Hardware Detect  │ None                                       │
-│ Model Registry   │ Hardware Detector                          │
-│ Ollama Bridge    │ Ollama (external)                          │
-│ LM Studio Bridge │ LM Studio (external)                       │
-│ LocalAI Adapter  │ LocalAI (external)                         │
-│ Billing System   │ None                                       │
-│ Token Vault      │ None                                       │
-└──────────────────┴─────────────────────────────────────────────┘
-
-┌──────────────────┬─────────────────────────────────────────────┐
-│ Tool             │ Complementary Tools                        │
-├──────────────────┼─────────────────────────────────────────────┤
-│ Privacy Proxy    │ Billing, Hardware Detect                   │
-│ Knowledge Vault  │ Privacy Proxy, Hardware Detect             │
-│ QUIC Tunnel      │ Privacy Proxy, Billing                     │
-│ Consensus Engine │ Privacy Proxy, Billing                     │
-│ Hardware Detect  │ Model Registry, Knowledge Vault            │
-│ Model Registry   │ Hardware Detect, Knowledge Vault, Billing  │
-│ Ollama Bridge    │ Model Registry, Hardware Detect            │
-│ LM Studio Bridge │ Model Registry, Hardware Detect            │
-│ LocalAI Adapter  │ Model Registry                             │
-│ Billing System   │ QUIC Tunnel, Model Registry                │
-│ Token Vault      │ Privacy Proxy, Billing                     │
-└──────────────────┴─────────────────────────────────────────────┘
-```
-
----
-
-## SuperInstance Core
-
-### Purpose
-
-SuperInstance Core is the **orchestrator hub** that plugs in tools to create a cohesive AI system. It's not a monolith—it's a composition layer.
-
-### Architecture
-
-```
-SuperInstance Core (The Glue)
-┌─────────────────────────────────────────────────────────────┐
-│                  Core Orchestrator                           │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │           Tool Integration Layer                       │  │
-│  │  ┌─────────┐  ┌─────────┐  ┌─────────┐               │  │
-│  │  │Privacy  │  │Knowledge│  │Consensus│               │  │
-│  │  │ Proxy   │  │ Vault   │  │ Engine  │               │  │
-│  │  └────┬────┘  └────┬────┘  └────┬────┘               │  │
-│  │       │            │            │                     │  │
-│  │  ┌────▼────────────▼────────────▼────┐                │  │
-│  │  │      Unified API Surface          │                │  │
-│  │  └───────────────────────────────────┘                │  │
-│  └───────────────────────────────────────────────────────┘  │
-│                                                             │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │           Tripartite Council (Example App)            │  │
-│  │  ┌─────────┐  ┌─────────┐  ┌─────────┐               │  │
-│  │  │ PATHOS  │  │  LOGOS  │  │  ETHOS  │               │  │
-│  │  │(Intent) │  │(Logic)  │  │(Truth)  │               │  │
-│  │  └────┬────┘  └────┬────┘  └────┬────┘               │  │
-│  │       └───────────┼───────────┘                      │  │
-│  │                   ▼                                  │  │
-│  │         Consensus Engine (tool)                      │  │
-│  └───────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### How to Plug In a New Tool
-
-#### Step 1: Create the Tool
-
-```rust
-// Your tool crate
-// Cargo.toml
-[package]
-name = "my-si-tool"
-version = "0.1.0"
-
-[dependencies]
-synesis-core = { version = "0.2", optional = true }
-
-// src/lib.rs
-pub struct MyTool {
-    config: ToolConfig,
-}
-
-impl MyTool {
-    pub fn new(config: ToolConfig) -> Result<Self, Error> {
-        Ok(Self { config })
-    }
-
-    pub fn process(&self, input: &str) -> Result<String, Error> {
-        // Your tool logic
-        Ok(format!("Processed: {}", input))
-    }
-}
-```
-
-#### Step 2: Register with SuperInstance Core
-
-```rust
-// In SuperInstance Core
-// crates/synesis-core/src/tools/mod.rs
-
-pub mod my_tool;  // Add this
-
-use my_tool::MyTool;
-
-// Register tool
-pub struct ToolRegistry {
-    tools: HashMap<String, Box<dyn Any>>,
-}
-
-impl ToolRegistry {
-    pub fn register_my_tool(&mut self, config: ToolConfig) {
-        let tool = MyTool::new(config).unwrap();
-        self.tools.insert("my_tool".to_string(), Box::new(tool));
-    }
-
-    pub fn get_tool<T: 'static>(&self, name: &str) -> Option<&T> {
-        self.tools.get(name).and_then(|t| t.downcast_ref::<T>())
-    }
-}
-```
-
-#### Step 3: Use in CLI
-
-```rust
-// crates/synesis-cli/src/commands/my_tool.rs
-
-use synesis_core::tools::my_tool::MyTool;
-
-pub fn run_my_tool(input: &str) -> Result<(), Error> {
-    let registry = get_tool_registry();
-    let tool = registry.get_tool::<MyTool>("my_tool").unwrap();
-    let output = tool.process(input)?;
-    println!("{}", output);
-    Ok(())
-}
-```
-
-#### Step 4: Document Relationships
-
-```markdown
-# My Tool
-
-**Repository**: `https://github.com/SuperInstance/my-si-tool`
-
-**Used By**:
-- SuperInstance Core
-- [Your app here]
-
-**Requires**:
-- Nothing
-
-**Complementary Tools**:
-- Privacy Proxy (if handling sensitive data)
-- Billing System (if tracking usage)
-```
-
-### Tool Integration Patterns
-
-#### Pattern 1: Direct Library Usage
-
-```rust
-// Use tool as library
-use privacy_proxy::Redactor;
-
-let redactor = Redactor::new(config)?;
-let redacted = redactor.redact(text).await?;
-```
-
-#### Pattern 2: CLI Integration
-
-```bash
-# Use tool CLI
-synesis my-tool --input "data"
-
-# Which calls:
-my-tool --input "data"
-```
-
-#### Pattern 3: Service Mode
-
-```bash
-# Tool runs as microservice
-my-tool server --port 8080
-
-# SuperInstance connects via HTTP/QUIC
-```
-
-### Example: Building a Custom App
-
-```rust
-// My custom AI app using SuperInstance tools
-
-use privacy_proxy::Redactor;
-use knowledge_vault::KnowledgeBase;
-use consensus_engine::ConsensusEngine;
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // 1. Load tools
-    let redactor = Redactor::new(config)?;
-    let kb = KnowledgeBase::new("./kb.db").await?;
-    let engine = ConsensusEngine::new(agents, config)?;
-
-    // 2. Process query
-    let query = "How does authentication work?";
-
-    // 3. Redact (if needed)
-    let redacted = redactor.redact(query).await?;
-
-    // 4. Search knowledge
-    let context = kb.search(&redacted, 3).await?;
-
-    // 5. Run consensus
-    let result = engine.decide(context).await?;
-
-    // 6. Return answer
-    println!("Answer: {}", result);
-
-    Ok(())
-}
-```
-
----
-
-## UI Architectures
-
-### Strategy: Documentation First, Implementation Later
-
-UIs are **thin composition layers** over our tools. We document architectures before implementing.
-
----
-
-### 1. CLI (Command-Line Interface) ✅ COMPLETE
-
-**Status**: Production Ready
-**Documentation**: [docs/CLI_ARCHITECTURE.md](docs/CLI_ARCHITECTURE.md)
-**User Guide**: [docs/CLI_USER_GUIDE.md](docs/CLI_USER_GUIDE.md)
-**Developer Guide**: [docs/CLI_DEVELOPER_GUIDE.md](docs/CLI_DEVELOPER_GUIDE.md)
-
-#### Architecture Overview
-
-```
-CLI Application (synesis-cli)
-├── Commands/
-│   ├── ask/           # Main query interface
-│   ├── init/          # First-time setup
-│   ├── knowledge/     # RAG management
-│   ├── model/          # Model management
-│   ├── cloud/          # Cloud operations
-│   ├── metrics/        # Performance metrics
-│   ├── config/        # Configuration
-│   └── manifest/       # Hardware manifests
-└── Core Library
-    └── Direct calls to synesis-core (no HTTP overhead)
-```
-
-#### Key Features
-
-- Hardware detection (auto-optimizes for your system)
-- Tripartite consensus visualization
-- Knowledge vault RAG integration
-- Privacy redaction (18 built-in patterns)
-- Local inference (no internet required)
-- Optional cloud escalation
-- Configuration profiles
-- Streaming responses
-
-#### Quick Start
-
-```bash
-# Install
-cargo install synesis-cli
-
-# First-time setup
-synesis init
-
-# Ask question
-synesis ask "Explain how Rust's ownership works"
-
-# Add knowledge
-synesis knowledge add ~/Documents/my-project/
-
-# Check status
-synesis status
-```
-
-**Repository**: `https://github.com/SuperInstance/Tripartite1`
-**Implementation**: Complete
-
----
-
-### 2. Web Dashboard 🔄 PLANNED
-
-**Status**: Architecture Documented, Implementation Scheduled
-**Priority**: P1
-**Documentation**:
-- [docs/WEB_ARCHITECTURE.md](docs/WEB_ARCHITECTURE.md) (Architecture overview)
-- [docs/WEB_USER_GUIDE.md](docs/WEB_USER_GUIDE.md) (User workflows)
-- [docs/WEB_DEVELOPER_GUIDE.md](docs/WEB_DEVELOPER_GUIDE.md) (Implementation guide)
-
-#### Architecture Overview
-
-```
-┌───────────────────────────────────────────────────────────┐
-│                    Web Dashboard (Next.js 14)               │
-│                                                                │
-│  Frontend Layer                                                 │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │  UI Components (shadcn/ui + Tailwind CSS)                │  │
-│  │  ┌────────┐  ┌──────────┐  ┌─────────────────────────┐  │  │
-│  │  │Chat UI │  │Admin     │  │ Knowledge Browser        │  │  │
-│  │  │        │  │Panel    │  │                         │  │  │
-│  │  └────────┘  └──────────┘  └─────────────────────────┘  │  │
-│  │                                                          │  │
-│  │  ┌──────────────────────────────────────────────────────┐  │ │
-│  │  │    State Management (Zustand + React Query)          │  │ │
-│  │  └──────────────────────┬───────────────────────────┘  │  │
-│  └──────────────────────────┼───────────────────────────────┘ │
-│                             │ HTTP/WebSocket              │
-├─────────────────────────────┼─────────────────────────────────┤
-│  Backend Web Server (Actix)    │                                 │
-│  ┌────────────────────────────────────────────────────────┐   │
-│  │  API Endpoints                                         │   │
-│  │  POST   /api/v1/chat                                 │   │
-│  │  GET    /api/v1/chat/:id/stream (SSE)               │   │
-│  │  POST   /api/v1/knowledge                            │   │
-│  │  GET    /api/v1/status                               │   │
-│  │  WS     /api/v1/ws (WebSocket)                      │   │
-│  └──────────────────────┬───────────────────────────────┘   │
-│                           │                                 │
-│  ┌──────────────────────▼─────────────────────────────┐   │
-│  │  Core SuperInstance (synesis-core, synesis-...)     │   │
-│  └─────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-```
-
-#### Technology Stack
-
-**Frontend**:
-- Next.js 14 (App Router)
-- TypeScript
-- Tailwind CSS
-- shadcn/ui components
-- Zustand (state management)
-- React Query (data fetching)
-
-**Backend**:
-- Actix-web 4
-- Tokio (async runtime)
-- SSE/WebSocket support
-- JWT authentication
-
-#### Key Features (Planned)
-
-1. **Real-Time Chat Interface**
-   - Streaming responses with typing indicators
-   - Agent visualization (Pathos/Logos/Ethos status)
-   - Consensus meter showing live voting
-
-2. **Knowledge Vault Browser**
-   - Document listing with metadata
-   - Semantic search interface
-   - Drag-and-drop document upload
-
-3. **Configuration Management**
-   - Visual model selection
-   - Consensus threshold slider
-   - Privacy pattern toggles
-
-4. **Admin Dashboard**
-   - System metrics (CPU, GPU, memory)
-   - Billing overview
-   - Cloud connection status
-
-#### User Workflows
-
-**Chat Interface**:
-- Enter query in chat box
-- Watch agents think in real-time
-- View consensus formation
-
-**Knowledge Management**:
-- Browse indexed documents
-- Upload new documents (drag-and-drop)
-- Search semantic content
-
-**Settings**:
-- Switch between models
-- Adjust consensus threshold
-- Toggle privacy patterns
-
-**Implementation**: Not started (architecture documented)
-
----
-
-### 3. Desktop Application 🔄 PLANNED
-
-**Status**: Architecture Documented, Implementation Scheduled
-**Priority**: P1
-**Documentation**:
-- [docs/DESKTOP_ARCHITECTURE.md](docs/DESKTOP_ARCHITECTURE.md) (Architecture overview)
-- [docs/DESKTOP_USER_GUIDE.md](docs/DESKTOP_USER_GUIDE.md) (User workflows)
-- [docs/DESKTOP_DEVELOPER_GUIDE.md](docs/DESKTOP_DEVELOPER_GUIDE.md) (Implementation guide)
-
-#### Architecture Overview
-
-```
-┌──────────────────────────────────────────────────┐
-│        Desktop App (Tauri 2.0)                     │
-│                                                   │
-│  Frontend (React + TypeScript)                      │
-│  ┌────────────────────────────────────────────┐  │
-│  │  (Reuses web-dashboard components)            │  │
-│  │  ┌──────────┐  ┌─────────┐                     │  │
-│  │  │Chat View │  │Settings │                     │  │
-│  │  └──────────┘  └─────────┘                     │  │
-│  └────────────────────────────────────────────┘  │
-│                   │ IPC (Tauri Commands)           │
-├───────────────────┼──────────────────────────────────┤
-│  Backend (Rust)                                     │
-│  ┌──────────────────────────────────────────────┐ │
-│  │  synesis-core (embedded library)             │ │
-│  │  - Direct function calls (no HTTP)           │ │
-│  │  - Native performance                      │ │
-│  │  - Offline-first architecture                │ │
-│  └──────────────────────────────────────────────┘  │
-│                                                   │
-│  Native OS Features:                             │
-│  - System tray icon                              │
-│  - Global hotkeys (Cmd+Shift+S)                   │
-│  - Native notifications                           │
-│  - File drag-and-drop                             │
-│  - OS keychain integration                       │
-└───────────────────────────────────────────────────┘
-```
-
-#### Technology Stack
-
-**Frontend**:
-- React + TypeScript
-- Reuses web-dashboard components
-- Tauri API for native features
-
-**Backend**:
-- Tauri 2.0
-- Rust
-- synesis-core (embedded library)
-
-#### Key Features (Planned)
-
-1. **Offline-First**
-   - Full functionality without internet
-   - Local model inference
-   - Background sync when online
-
-2. **Native OS Integration**
-   - System tray with quick actions
-   - Global hotkey for quick access
-   - Native notifications
-   - File associations
-
-3. **Local Resource Management**
-   - Hardware acceleration UI
-   - Model download manager
-   - GPU memory monitoring
-
-4. **Security**
-   - OS keychain for API keys
-   - Biometric unlock (TouchID/Windows Hello)
-   - Encrypted local storage
-
-#### Distribution
-
-- **Windows**: `.exe` installer
-- **macOS**: `.dmg` installer
-- **Linux**: AppImage/deb package
-
-**Implementation**: Not started (architecture documented)
-
----
-
-### 4. VS Code Extension 🔄 PLANNED
-
-**Status**: Architecture Documented, Implementation Scheduled
-**Priority**: P1
-**Documentation**:
-- [docs/VSCODE_ARCHITECTURE.md](docs/VSCODE_ARCHITECTURE.md) (Architecture overview)
-- [docs/VSCODE_USER_GUIDE.md](docs/VSCODE_USER_GUIDE.md) (User workflows)
-- [docs/VSCODE_DEVELOPER_GUIDE.md](docs/VSCODE_DEVELOPER_GUIDE.md) (Implementation guide)
-
-#### Architecture Overview
-
-```
-┌──────────────────────────────────────────────────┐
-│        VS Code Extension (TypeScript)             │
-│                                                   │
-│  Extension Host (Node.js)                         │
-│  ┌──────────────────────────────────────────────┐ │
-│  │  Language Features                             │ │
-│  │  - Inline completion                           │ │
-│  │  - Code explanation                          │ │ │
-│  │  - Refactoring suggestions                     │ │
-│  │  - Code lens integration                     │ │
-│  └──────────────────────────────────────────────┘ │
-│                                                   │
-│  ┌──────────────────────────────────────────────┐ │
-│  │  WASM Module (synesis-wasm)                 │ │
-│  │  - Compiled Rust core                        │ │
-│  │  - Runs in Node.js via WASI                   │ │
-│  └──────────────────────────────────────────────┘ │
-│                        │                          │
-│              ┌──────────────┐                       │
-│              │ synesis-server│ ← Optional        │
-│              │  (Rust binary)│   background      │
-│              └──────────────┘                       │
-└───────────────────────────────────────────────────┘
-```
-
-#### Technology Stack
-
-**Extension**:
-- TypeScript
-- VS Code Extension API
-- WASM for Rust core
-
-**Optional Server**:
-- Rust binary
-- Runs in background
-
-#### Key Features (Planned)
-
-1. **Context-Aware Completions**
-   - File-aware suggestions
-   - Project-wide semantic search
-   - Import suggestions
-
-2. **Inline Explanations**
-   - Hover over code for explanations
-   - Step-by-step logic breakdown
-   - Safety warnings
-
-3. **Codebase Q&A**
-   - "How does authentication work?"
-   - "Find all usages of function X"
-   - "Explain module Y architecture"
-
-4. **Refactoring Assistant**
-   - Suggest improvements via Ethos
-   - Performance optimization hints
-   - Bug detection
-
-#### Configuration
-
-```json
-// settings.json
-{
-  "superinstance.model": "phi-3-mini",
-  "superinstance.knowledgePath": "~/Documents/my-project",
-  "superinstance.backend": "local",
-  "superinstance.hotkey": "cmd+shift+s"
-}
-```
-
-**Implementation**: Not started (architecture documented)
-
----
-
-### 5. Mobile SDK 🔄 PLANNED
-
-**Status**: Architecture Documented, Implementation Scheduled
-**Priority**: P2
-**Documentation**:
-- [docs/MOBILE_ARCHITECTURE.md](docs/MOBILE_ARCHITECTURE.md) (Architecture overview)
-- [docs/MOBILE_USER_GUIDE.md](docs/MOBILE_USER_GUIDE.md) (User workflows)
-- [docs/MOBILE_DEVELOPER_GUIDE.md](docs/MOBILE_DEVELOPER_GUIDE.md) (Implementation guide)
-
-#### Architecture Overview
-
-```
-┌──────────────────────────────────────────────────┐
-│        Mobile App (Flutter)                        │
-│                                                   │
-│  Dart Layer                                        │
-│  ┌────────────────────────────────────────────┐  │
-│  │  UI Components (Flutter widgets)            │  │
-│  │  - Chat interface                           │  │
-│  │  - Settings screens                         │  │
-│  │  - Knowledge browser                        │  │
-│  └────────────────────────────────────────────┘  │
-│                                                   │
-│  ┌────────────────────────────────────────────┐  │
-│  │  synesis_mobile (Dart package)             │  │
-│  │  - SuperInstanceClient                   │  │
-│  │  - Message streaming                     │  │
-│  │  - Local storage                           │  │
-│  └────────────────────────────────────────────┘  │
-│                   │ Platform Channel              │
-├─────────────────────┼──────────────────────────────────┤
-│  Native Platform Layer                             │
-│  ┌──────────────┐        ┌──────────────┐      │
-│  │   Android    │        │     iOS      │      │
-│  │   (Kotlin)   │        │   (Swift)    │      │
-│  │              │        │              │      │
-│  │ synesis-core │        │ synesis-core │      │
-│  │  via JNI     │        │  via FFI     │      │
-│  │              │        │              │      │
-│  │ Local models  │        │ Local models  │      │
-│  └──────────────┘        └──────────────┘      │
-│                                                   │
-│  Offline-First Storage                            │
-└───────────────────────────────────────────────────┘
-```
-
-#### Technology Stack
-
-**Cross-Platform**:
-- Flutter
-- Dart
-
-**Native**:
-- Android: Kotlin (JNI)
-- iOS: Swift (FFI)
-
-#### Key Features (Planned)
-
-1. **Offline Mode**
-   - Cache previous queries
-   - Local-only mode
-   - Download models for offline
-
-2. **Privacy-First**
-   - Biometric authentication
-   - Encrypted local storage
-   - No data leaves device
-
-3. **Battery Optimization**
-   - Adaptive inference
-   - Background processing limits
-   - Thermal throttling
-
-4. **Native Integrations**
-   - Share sheet integration
-   - Widgets (home screen)
-   - Siri shortcuts / Google Assistant
-
-**Implementation**: Not started (architecture documented)
-
----
-
-## Development Workflow
-
-### How to Extract a Tool
-
-When a component in SuperInstance Core is generalizable, extract it:
-
-#### Step 1: Evaluate
-
-```bash
-# Is this tool valuable independently?
-- [ ] Can it work standalone?
-- [ ] Does it solve a common problem?
-- [ ] Is it useful outside SuperInstance?
-- [ ] Does it have a clean API surface?
-```
-
-#### Step 2: Create Repository
-
-```bash
-# Create new repository
-gh repo create si-tool-name --public --clone
-
-# Set up structure
-cd si-tool-name
-cargo init --lib
-mkdir -p docs examples tests
-```
-
-#### Step 3: Extract Code
-
-```bash
-# Copy code from SuperInstance
-cp -r /path/to/synesis-core/src/tool ./src/
-
-# Update dependencies
-# Cargo.toml
-[package]
-name = "tool-name"
-version = "0.1.0"
-
-[dependencies]
-# Remove SuperInstance dependencies
-# Add only what's needed
-```
-
-#### Step 4: Document
-
-```markdown
-# Tool Name
-
-**Purpose**: One-line description
-
-**Used By**:
-- SuperInstance Core
-- [List other apps]
-
-**Requires**:
-- [List dependencies]
-
-**Complementary Tools**:
-- [List related tools]
-
-## Quick Start
-
-\`\`\`bash
-cargo install tool-name
-tool-name --help
-\`\`\`
-
-## API Documentation
-
+Round 1  [                                      ]   0% 🔄 SPAWING NOW
+Round 2  [                                      ]   0% ⏳ PENDING
+Round 3  [                                      ]   0% ⏳ PENDING
+Round 4  [                                      ]   0% ⏳ PENDING
+Round 5  [                                      ]   0% ⏳ PENDING
 ...
-
-## Examples
-
-...
-```
-
-#### Step 5: Add CLI
-
-```rust
-// src/main.rs
-use tool_name::Tool;
-
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let tool = Tool::new()?;
-    // CLI logic
-    Ok(())
-}
-```
-
-#### Step 6: Publish
-
-```bash
-# Test
-cargo test
-cargo clippy -- -D warnings
-cargo fmt --all
-
-# Publish to crates.io
-cargo publish
-
-# Announce
-# - Update SuperInstance README
-# - Create release notes
-# - Add to ecosystem matrix
-```
-
-### How to Integrate a Tool
-
-#### Step 1: Add Dependency
-
-```toml
-# Cargo.toml
-[dependencies]
-tool-name = "0.1"
-```
-
-#### Step 2: Register Tool
-
-```rust
-// synesis-core/src/tools/mod.rs
-pub mod tool_name;
-
-use tool_name::Tool;
-
-pub fn register_all_tools() -> ToolRegistry {
-    let mut registry = ToolRegistry::new();
-    registry.register("tool_name", Tool::new().unwrap());
-    // ...
-    registry
-}
-```
-
-#### Step 3: Use in Application
-
-```rust
-// synesis-cli/src/commands/using_tool.rs
-use synesis_core::tools::tool_name::Tool;
-
-pub fn run() -> Result<(), Error> {
-    let tool = get_tool::<Tool>("tool_name")?;
-    tool.do_something()?;
-    Ok(())
-}
-```
-
-#### Step 4: Document Integration
-
-```markdown
-## Tool Integration
-
-**Tool**: tool-name
-**Version**: 0.1.0
-**Purpose**: What it does
-
-### Integration Points
-
-1. **CLI**: `synesis tool-name --arg value`
-2. **Core**: `synesis_core::tools::tool_name`
-3. **Configuration**: `~/.config/synesis/tool-name.yaml`
-
-### Examples
-
-...
-```
-
-### Cross-Referencing Standards
-
-Every tool repository MUST include:
-
-```markdown
-# Ecosystem Integration
-
-## Used By
-
-Applications that use this tool:
-- [SuperInstance Core](https://github.com/SuperInstance/Tripartite1) - Description
-- [Other App](https://github.com/other/app) - Description
-- [Your App](https://github.com/your/app) - Add yours!
-
-## Requires
-
-Tools this tool depends on:
-- [dependency-tool](https://github.com/SuperInstance/dependency-tool) - Why it's needed
-
-## Complementary Tools
-
-Tools that work well with this:
-- [related-tool](https://github.com/SuperInstance/related-tool) - How they complement
-- [another-tool](https://github.com/SuperInstance/another-tool) - Integration pattern
+Round 25 [                                      ]   0% ⏳ PENDING
 ```
 
 ---
 
-## Tool Repository Template
+## Orchestrator Rules
 
-### Standard Structure
+### 🎯 Core Principles
+
+1. **Wait for Completion**: Never spawn Round N+1 until Round N is 100% complete
+2. **Auto-Accept All Agents**: Every agent spawn uses `autoaccept: true`
+3. **Specialize Agents**: Choose the most relevant subagent_type for each task
+4. **Monitor Progress**: Check agent outputs, provide help when stuck
+5. **Validate Deliverables**: Ensure round outputs meet quality standards
+6. **Create Repos**: When a tool is independently useful, create its GitHub repo
+7. **Push When Ready**: Only push after tests pass, docs complete, repo is great
+8. **Update Documentation**: Keep CLAUDE.md and ecosystem docs in sync
+
+### 📦 Repository Strategy
+
+**When to Create a New Repo:**
+- ✅ Tool is independently useful (others could use it)
+- ✅ API is stable and well-documented
+- ✅ Tests pass (100% pass rate)
+- ✅ Zero warnings
+- ✅ Has README that converts in 10 seconds
+- ✅ Has examples showing usage
+
+**Repo Requirements:**
+- Complete README.md with badges
+- LICENSE file (MIT OR Apache-2.0)
+- CONTRIBUTING.md
+- CI/CD workflows
+- Examples directory (3+ examples)
+- Comprehensive documentation
+- Cross-references to related tools
+
+**Pushing to GitHub:**
+1. Create repo on GitHub (https://github.com/SuperInstance)
+2. Add remote: `git remote add <tool> https://github.com/SuperInstance/<tool>.git`
+3. Push: `git push <tool> main`
+4. Create GitHub release (v0.1.0)
+5. Publish to crates.io (if Rust crate)
+6. Update Tripartite1 to use the new crate/repo
+7. Update ecosystem documentation with cross-references
+
+### 📋 Round Completion Criteria
+
+A round is COMPLETE when:
+- ✅ All 4 agents have finished their tasks
+- ✅ All deliverables are committed to git
+- ✅ Tests pass (if applicable)
+- ✅ Documentation is updated
+- ✅ New repos created (if applicable)
+- ✅ Repos pushed to GitHub (if ready)
+- ✅ Ecosystem docs updated with cross-references
+- ✅ Next round is planned and ready to spawn
+
+### 🔄 Round Workflow
 
 ```
-si-tool-name/
-├── Cargo.toml              # Package metadata
-├── README.md               # User-facing overview
-├── LICENSE                 # Apache 2.0
-├── CHANGELOG.md            # Version history
-├── CONTRIBUTING.md         # Contribution guidelines
-│
-├── docs/                   # Documentation
-│   ├── ARCHITECTURE.md     # Technical architecture
-│   ├── API.md              # API reference
-│   ├── EXAMPLES.md         # Usage examples
-│   └── INTEGRATION.md      # How to integrate
-│
-├── examples/               # Example code
-│   ├── basic_usage.rs
-│   ├── advanced.rs
-│   └── integration.rs
-│
-├── tests/                  # Integration tests
-│   └── integration_test.rs
-│
-└── src/
-    ├── lib.rs              # Library exports
-    ├── error.rs            # Error types
-    └── ...
+1. SPAWN → Launch 4 specialized agents (autoaccept=true)
+2. MONITOR → Track progress, provide assistance
+3. VALIDATE → Check deliverables quality
+4. CREATE REPO → If tool is independent, create GitHub repo
+5. PUSH → Push when production-ready
+6. UPDATE → Update ecosystem docs with cross-references
+7. COMMIT → Ensure all work is saved
+8. PLAN → Design next round's agents and tasks
+9. WAIT → Confirm round 100% complete
+10. GOTO → Step 1 for next round
 ```
-
-### README.md Template
-
-```markdown
-# Tool Name
-
-> One-line description
-
-![Build](https://github.com/SuperInstance/tool-name/workflows/Build/badge.svg)
-![Version](https://img.shields.io/crates/v/tool-name)
-![License](https://img.shields.io/crates/l/tool-name)
-
-## What is it?
-
-Brief description of what the tool does and why it's useful.
-
-## Features
-
-- Feature 1
-- Feature 2
-- Feature 3
-
-## Quick Start
-
-\`\`\`bash
-# Install
-cargo install tool-name
-
-# Use
-tool-name --help
-\`\`\`
-
-## Documentation
-
-- [Architecture](docs/ARCHITECTURE.md)
-- [API Reference](docs/API.md)
-- [Examples](docs/EXAMPLES.md)
-- [Integration Guide](docs/INTEGRATION.md)
-
-## Ecosystem Integration
-
-### Used By
-
-- [SuperInstance Core](https://github.com/SuperInstance/Tripartite1) - Primary use case
-- [Your App](https://github.com/your/app) - Add yours!
-
-### Requires
-
-- [dependency-tool](https://github.com/SuperInstance/dependency-tool) - Why
-
-### Complementary Tools
-
-- [related-tool](https://github.com/SuperInstance/related-tool) - How they work together
-
-## Examples
-
-\`\`\`rust
-use tool_name::Tool;
-
-let tool = Tool::new()?;
-let result = tool.do_something()?;
-\`\`\`
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md)
-
-## License
-
-Apache 2.0
-```
-
-### Cargo.toml Template
-
-```toml
-[package]
-name = "tool-name"
-version = "0.1.0"
-edition = "2021"
-authors = ["SuperInstance Team"]
-description = "One-line description"
-repository = "https://github.com/SuperInstance/tool-name"
-license = "Apache-2.0"
-keywords = ["ai", "privacy", "local-first"]
-categories = ["command-line-utilities", "development-tools"]
-
-[dependencies]
-# Only essential dependencies
-
-[dev-dependencies]
-# Test dependencies
-
-[[bin]]
-name = "tool-name"
-path = "src/main.rs"
-```
-
-### Documentation Standards
-
-Every tool MUST have:
-
-1. **README.md**: User-facing overview, quick start, links to detailed docs
-2. **ARCHITECTURE.md**: Technical architecture, design decisions
-3. **API.md**: Complete API reference with examples
-4. **EXAMPLES.md**: Common usage patterns
-5. **INTEGRATION.md**: How to integrate into other projects
-6. **CHANGELOG.md**: Version history with breaking changes noted
 
 ---
 
-## Ecosystem Governance
+## Round 1: Extract Privox as Independent Repository
 
-### Version Management
+**Goal**: Create `privox` crate - Privacy redaction engine
 
-**Semantic Versioning**: All tools use SemVer
+**Repository**: https://github.com/SuperInstance/privox
+**Push When**: Complete, tested, documented, production-ready
 
-- **MAJOR**: Breaking changes
-- **MINOR**: New features, backwards compatible
-- **PATCH**: Bug fixes, backwards compatible
+**Dependencies**: None (first round)
 
-**Version Coordination**:
+**Duration**: ~2 hours
 
+### Agent 1.1: Code Extraction Specialist
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Copy `crates/synesis-privacy/*` to new directory structure
+- Remove SuperInstance-specific dependencies
+- Update all imports and module references
+- Verify Cargo.toml has correct metadata
+- Create standalone crate structure
+
+**Deliverables**:
+- `privox/` directory with complete crate structure
+- `privox/Cargo.toml` (independent, no synesis-* deps)
+- `privox/src/lib.rs` (updated imports)
+- `privox/src/patterns.rs` (all 18 patterns)
+- `privox/src/redactor.rs` (core redaction logic)
+- `privox/src/vault.rs` (token storage)
+
+**Commands**:
+```bash
+mkdir -p privox/src
+cp -r crates/synesis-privacy/* privox/src/
+# Update imports, remove dependencies
 ```
-SuperInstance Core: 0.2.0
-├── privacy-proxy: 0.2.0   (Same major.minor)
-├── knowledge-vault: 0.2.0
-├── consensus-engine: 0.1.0 (Different minor = OK)
-└── quic-tunnel: 0.2.0
-```
 
-**Compatibility Matrix**:
+### Agent 1.2: README & Documentation Writer
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write production README.md for privox
+- Create 5 example programs in `examples/`
+- Write getting_started.md tutorial
+- Document all 18 built-in patterns
+- Create migration guide from synesis-privacy
 
-| Core Version | Tool Versions |
-|--------------|---------------|
-| 0.2.x        | 0.2.x         |
-| 0.1.x        | 0.1.x, 0.2.x   |
+**Deliverables**:
+- `privox/README.md` (complete with badges, examples, 10-second hook)
+- `privox/examples/basic.rs` (3-line hello world)
+- `privox/examples/custom_patterns.rs` (custom pattern example)
+- `privox/examples/server.rs` (HTTP server example)
+- `privox/examples/stream.rs` (stream processing example)
+- `privox/docs/getting_started.md` (tutorial)
+- `MIGRATION_GUIDE.md` (synesis-privacy → privox)
 
-### Breaking Change Policy
+**README Must Include**:
+- Badges (crates.io, docs.rs, CI, license)
+- 3-line hello world example
+- 18 built-in patterns table
+- Performance benchmarks
+- Installation instructions
+- "Used By" section (SuperInstance)
 
-**Definition**: Breaking change = API change that requires user code modification
+### Agent 1.3: CI/CD & Testing Engineer
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create GitHub Actions workflow for CI
+- Set up Dependabot for dependencies
+- Create security scanning workflow
+- Verify all 37 tests still pass
+- Add benchmarking suite
+- Test on Linux, macOS, Windows
 
-**Process**:
+**Deliverables**:
+- `privox/.github/workflows/ci.yml` (multi-platform CI)
+- `privox/.github/dependabot.yml` (dependency updates)
+- `privox/.github/workflows/security.yml` (security scans)
+- `privox/benches/redaction.rs` (benchmark suite)
+- Test output: 37/37 passing
+- CI tested and working
 
-1. **Deprecate Old API** (MINOR version)
-   ```rust
-   #[deprecated(since = "0.2.0", note = "Use new_api instead")]
-   pub fn old_api() { ... }
-   ```
+**CI Must Include**:
+- Linux (x86_64), macOS (Intel + ARM), Windows tests
+- Rust formatting check
+- Clippy lints
+- Security vulnerability scanning
+- Coverage reporting
 
-2. **Release New API** (MINOR version)
-   ```rust
-   pub fn new_api() -> Result<()> { ... }
-   ```
+### Agent 1.4: Publishing & Integration Specialist
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Update SuperInstance to use privox crate
+- Create GitHub repo
+- Prepare crates.io publishing
+- Write cross-reference documentation
+- Push to GitHub when ready
+- Create v0.1.0 release
 
-3. **Remove Old API** (MAJOR version)
-   - Document in CHANGELOG.md
-   - Provide migration guide
-   - Wait at least 6 months after deprecation
+**Deliverables**:
+- Updated `Tripartite1/Cargo.toml` (uses `privox = "0.1"`)
+- Updated `Tripartite1/src/*.rs` (imports from privox)
+- GitHub repo created: https://github.com/SuperInstance/privox
+- `privox/PUBLISHING_CHECKLIST.md`
+- Cross-reference in `docs/ECOSYSTEM.md`
+- GitHub release v0.1.0 with release notes
+- Published to crates.io as `privox`
 
-**Communication**:
+**Publishing Checklist**:
+- [ ] All tests pass (37/37)
+- [ ] Zero compiler warnings
+- [ ] Zero clippy warnings
+- [ ] README converts in 10 seconds
+- [ ] All examples run without errors
+- [ ] CI/CD passes on all platforms
+- [ ] Documentation complete
+- [ ] Cross-references added
+- [ ] LICENSE file present
+- [ ] CONTRIBUTING.md present
 
-- Update CHANGELOG.md
-- Create GitHub issue announcing breaking change
-- Update SuperInstance Core integration
-- Notify via repository discussions
-
-### Contributing Guidelines
-
-**For Tool Repositories**:
-
-1. **Follow Standards**: Use repository template
-2. **Document**: All public APIs must have doc comments
-3. **Test**: Minimum 80% code coverage
-4. **License**: Apache 2.0
-5. **Cross-Reference**: Update "Used By", "Requires", "Complementary"
-
-**For SuperInstance Core**:
-
-1. **Don't Break Tools**: Maintain backwards compatibility
-2. **Document Integrations**: How tools plug in
-3. **Example Apps**: Show tool composition
-4. **Update Matrix**: Keep tool relationship matrix current
-
-**For Applications**:
-
-1. **Thin Layers**: UIs should be minimal
-2. **Tool First**: Use tools, don't reimplement
-3. **Share Back**: Contribute improvements to tools
-4. **Document**: How you use tools
-
-### Code of Conduct
-
-**Be Inclusive**: Welcome all contributors
-
-**Be Constructive**: Focus on what works
-
-**Be Respectful**: Acknowledge different perspectives
-
-**Be Collaborative**: Build together, not alone
+### Round 1 Quality Checklist
+- [ ] All 37 tests pass
+- [ ] Zero compiler warnings
+- [ ] Zero clippy warnings
+- [ ] README converts visitors in 10 seconds
+- [ ] All examples run without errors
+- [ ] CI/CD workflows tested and passing
+- [ ] SuperInstance still works with privox dependency
+- [ ] Ecosystem docs updated with privox
+- [ ] GitHub repo created and pushed
+- [ ] crates.io published
+- [ ] Release notes written
+- [ ] Migration guide complete
 
 ---
 
-## Quick Reference
+## Round 2: Extract Tripartite-RS Consensus Engine
 
-### Essential Commands
+**Goal**: Create `tripartite-rs` crate - Multi-agent consensus system
 
+**Repository**: https://github.com/SuperInstance/tripartite-rs
+**Push When**: Complete, tested, documented
+
+**Dependencies**: Round 1 complete
+
+**Duration**: ~3 hours
+
+### Agent 2.1: Refactoring Specialist
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Extract consensus logic from synesis-core
+- Remove SuperInstance agent dependencies
+- Create generic Agent<Input, Output> trait
+- Design plugin architecture for custom agents
+- Make consensus engine framework-agnostic
+
+**Deliverables**:
+- `tripartite-rs/` directory
+- `tripartite-rs/src/lib.rs` (generic consensus engine)
+- `tripartite-rs/src/agent.rs` (Agent trait)
+- `tripartite-rs/src/voting.rs` (voting strategies)
+- `tripartite-rs/src/consensus.rs` (core logic)
+
+### Agent 2.2: Example Implementations
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create 3 example agent implementations
+- Build multi-round consensus example
+- Create arbiter fallback examples
+- Write parallel execution demo
+
+**Deliverables**:
+- `tripartite-rs/examples/basic_consensus.rs`
+- `tripartite-rs/examples/multi_round.rs`
+- `tripartite-rs/examples/arbiter.rs`
+- `tripartite-rs/examples/parallel.rs`
+- `tripartite-rs/examples/custom_agent.rs`
+
+### Agent 2.3: Documentation & Guides
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write comprehensive README
+- Create architecture documentation
+- Write tutorial for custom agents
+- Document voting strategies
+
+**Deliverables**:
+- `tripartite-rs/README.md`
+- `tripartite-rs/docs/architecture.md`
+- `tripartite-rs/docs/custom_agents.md`
+- `tripartite-rs/docs/voting_strategies.md`
+- `tripartite-rs/examples/README.md`
+
+### Agent 2.4: Integration & Publishing
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Update SuperInstance to use tripartite-rs
+- Create integration tests
+- Add performance benchmarks
+- Create GitHub repo and publish
+- Cross-reference with privox
+
+**Deliverables**:
+- Updated `Tripartite1/Cargo.toml`
+- `tripartite-rs/tests/integration.rs`
+- `tripartite-rs/benches/consensus.rs`
+- GitHub repo: https://github.com/SuperInstance/tripartite-rs
+- crates.io published
+- Cross-references in ecosystem docs
+
+---
+
+## Round 3: Extract Knowledge-Vault RAG System
+
+**Goal**: Create `knowledge-vault` crate - Vector database with semantic search
+
+**Repository**: https://github.com/SuperInstance/knowledge-vault
+**Push When**: Complete, tested, documented
+
+**Dependencies**: Round 1 complete (may use privox for PII redaction in examples)
+
+**Duration**: ~3 hours
+
+### Agent 3.1: Database Extraction Specialist
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Extract vault and indexing logic
+- Remove SuperInstance dependencies
+- Create embedder trait for pluggable models
+- Design chunking strategy interface
+
+**Deliverables**:
+- `knowledge-vault/` directory
+- `knowledge-vault/src/lib.rs`
+- `knowledge-vault/src/vault.rs`
+- `knowledge-vault/src/embedders.rs`
+- `knowledge-vault/src/chunkers.rs`
+- `knowledge-vault/src/search.rs`
+
+### Agent 3.2: Example Applications
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create code indexing example
+- Build document search example
+- Create RAG with LLM example
+- Write file watching demo
+
+**Deliverables**:
+- `knowledge-vault/examples/code_index.rs`
+- `knowledge-vault/examples/doc_search.rs`
+- `knowledge-vault/examples/rag_llm.rs`
+- `knowledge-vault/examples/file_watcher.rs`
+- `knowledge-vault/examples/with_privox.rs` (integration)
+
+### Agent 3.3: Integration Specialist
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Integrate with privox for PII redaction
+- Create migration guide
+- Update SuperInstance dependencies
+- Write cross-references
+
+**Deliverables**:
+- Integration example with privox
+- `MIGRATION_GUIDE.md` for knowledge-vault
+- Updated `Tripartite1/Cargo.toml`
+- Ecosystem cross-references
+
+### Agent 3.4: Publishing & Performance
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Benchmark vector search performance
+- Create scaling tests (1K, 10K, 100K docs)
+- Test embedding model integrations
+- Verify SQLite-VSS compatibility
+- Create GitHub repo and publish
+
+**Deliverables**:
+- `knowledge-vault/benches/search.rs`
+- Performance report
+- Embedding integration tests
+- Compatibility matrix
+- GitHub repo published
+- crates.io published
+
+---
+
+## Round 4: Extract Hardware-Detection Tool
+
+**Goal**: Create `hwscan` crate - Cross-platform hardware detection
+
+**Repository**: https://github.com/SuperInstance/hwscan
+**Push When**: Complete, tested, documented
+
+**Dependencies**: None
+
+**Duration**: ~2 hours
+
+### Agent 4.1: Extraction Specialist
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Extract hardware detection logic
+- Create platform-specific modules
+- Design tier calculation API
+- Build capability detection
+
+**Deliverables**:
+- `hwscan/` directory
+- `hwscan/src/platform/mod.rs`
+- `hwscan/src/cpu.rs`
+- `hwscan/src/gpu.rs`
+- `hwscan/src/ram.rs`
+- `hwscan/src/tier.rs`
+
+### Agent 4.2: Platform Testing
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Test on Linux (x86_64, ARM64)
+- Document macOS (Intel, Apple Silicon)
+- Test Windows (x86_64)
+- Create platform compatibility matrix
+
+**Deliverables**:
+- Test results for all platforms
+- `hwscan/docs/platform_support.md`
+- Compatibility matrix
+- Known limitations doc
+
+### Agent 4.3: CLI Tool Builder
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create `hwscan` CLI binary
+- Build JSON output mode
+- Add tier recommendation
+- Create markdown report
+
+**Deliverables**:
+- `hwscan/src/main.rs`
+- `hwscan/examples/json_output.rs`
+- `hwscan/examples/tier_rec.rs`
+- `hwscan/examples/markdown_report.rs`
+
+### Agent 4.4: Publishing & Docs
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write comprehensive README
+- Create tier calculation guide
+- Document detection capabilities
+- Build integration examples
+- Create GitHub repo and publish
+
+**Deliverables**:
+- `hwscan/README.md`
+- `hwscan/docs/tier_system.md`
+- `hwscan/docs/capabilities.md`
+- `hwscan/examples/integration.rs`
+- GitHub repo published
+- crates.io published
+
+---
+
+## Round 5: Build Model-Registry Tool
+
+**Goal**: Create `model-registry` crate - Version management for ML models
+
+**Repository**: https://github.com/SuperInstance/model-registry
+**Push When**: Complete, tested, documented
+
+**Dependencies**: None
+
+**Duration**: ~2 hours
+
+### Agent 5.1: Registry Core
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Extract model registry logic
+- Create version tracking
+- Build metadata storage
+- Design download API
+
+**Deliverables**:
+- `model-registry/` crate
+- `model-registry/src/registry.rs`
+- `model-registry/src/version.rs`
+- `model-registry/src/metadata.rs`
+- `model-registry/src/download.rs`
+
+### Agent 5.2: CLI & API
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Build CLI tool
+- Create REST API spec
+- Design webhook system
+- Build authentication
+
+**Deliverables**:
+- `model-registry/src/main.rs`
+- `model-registry/docs/api.md`
+- `model-registry/src/webhooks.rs`
+- `model-registry/src/auth.rs`
+
+### Agent 5.3: Storage Backends
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design storage abstraction
+- Implement local filesystem
+- Add S3 backend option
+- Create migration system
+
+**Deliverables**:
+- `model-registry/src/storage/mod.rs`
+- `model-registry/src/storage/local.rs`
+- `model-registry/src/storage/s3.rs`
+- `model-registry/src/storage/migration.rs`
+
+### Agent 5.4: Testing & Publishing
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Comprehensive test suite
+- Migration guides
+- Performance benchmarks
+- Complete README
+- Create GitHub repo and publish
+
+**Deliverables**:
+- Test suite
+- Migration guide
+- Benchmarks
+- README
+- GitHub repo published
+- crates.io published
+
+---
+
+## Round 6: Build Token-Vault Tool
+
+**Goal**: Create `token-vault` crate - Secure token storage system
+
+**Repository**: https://github.com/SuperInstance/token-vault
+**Push When**: Complete, tested, documented
+
+**Dependencies**: Round 1 complete (privox integration)
+
+**Duration**: ~2 hours
+
+### Agent 6.1: Vault Core with Encryption
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Extract vault core logic
+- Add encryption-at-rest support
+- Build secure token storage
+- Design session isolation
+
+**Deliverables**:
+- `token-vault/` crate
+- `token-vault/src/vault.rs`
+- `token-vault/src/encryption.rs`
+- `token-vault/src/session.rs`
+
+### Agent 6.2: CLI Tools
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Build vault server
+- Build vault client
+- Create admin CLI
+- Add backup/restore
+
+**Deliverables**:
+- `token-vault/src/server.rs`
+- `token-vault/src/client.rs`
+- `token-vault/src/admin.rs`
+- `token-vault/src/backup.rs`
+
+### Agent 6.3: Integrations
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Integrate with privox
+- Build custom integration examples
+- Create adapter pattern
+- Write integration docs
+
+**Deliverables**:
+- `token-vault/examples/with_privox.rs`
+- `token-vault/examples/custom.rs`
+- `token-vault/docs/integrations.md`
+
+### Agent 6.4: Security & Publishing
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Security audit documentation
+- Threat model
+- Testing suite
+- Complete docs
+- Create GitHub repo and publish
+
+**Deliverables**:
+- Security documentation
+- Threat model
+- Test suite
+- Complete docs
+- GitHub repo published
+- crates.io published
+
+---
+
+## Round 7: Build QUIC-Tunnel Tool
+
+**Goal**: Create `quicunnel` crate - High-performance QUIC tunnel
+
+**Repository**: https://github.com/SuperInstance/quicunnel
+**Push When**: Complete, tested, documented
+
+**Dependencies**: None
+
+**Duration**: ~3 hours
+
+### Agent 7.1: QUIC Core
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Extract QUIC tunnel logic
+- Create connection management
+- Build stream handling
+- Design error recovery
+
+**Deliverables**:
+- `quicunnel/` crate
+- `quicunnel/src/tunnel.rs`
+- `quicunnel/src/connection.rs`
+- `quicunnel/src/stream.rs`
+
+### Agent 7.2: Security & Auth
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Add mTLS authentication
+- Build certificate management
+- Create encryption layer
+- Design secure handshake
+
+**Deliverables**:
+- `quicunnel/src/mTLS.rs`
+- `quicunnel/src/certificates.rs`
+- `quicunnel/src/handshake.rs`
+
+### Agent 7.3: Reliability Features
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Build heartbeat system
+- Create reconnection logic
+- Add keep-alive mechanism
+- Design failure detection
+
+**Deliverables**:
+- `quicunnel/src/heartbeat.rs`
+- `quicunnel/src/reconnect.rs`
+- `quicunnel/src/keepalive.rs`
+
+### Agent 7.4: Performance & Publishing
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Performance benchmarking
+- Load testing
+- Comparison with alternatives
+- Complete docs
+- Create GitHub repo and publish
+
+**Deliverables**:
+- Benchmarks
+- Load tests
+- Comparison report
+- Complete docs
+- GitHub repo published
+- crates.io published
+
+---
+
+## Round 8: Build Metered-Billing Tool
+
+**Goal**: Create `usemeter` crate - Usage tracking and billing
+
+**Repository**: https://github.com/SuperInstance/usemeter
+**Push When**: Complete, tested, documented
+
+**Dependencies**: Rounds 1-3 (integrates with tools)
+
+**Duration**: ~2 hours
+
+### Agent 8.1: Metering Engine
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Build core metering logic
+- Create event tracking
+- Design aggregation system
+- Build time-window management
+
+**Deliverables**:
+- `usemeter/` crate
+- `usemeter/src/meter.rs`
+- `usemeter/src/events.rs`
+- `usemeter/src/aggregation.rs`
+
+### Agent 8.2: Storage & Query
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design storage abstraction
+- Implement SQL backend
+- Add file backend option
+- Build query API
+
+**Deliverables**:
+- `usemeter/src/storage/mod.rs`
+- `usemeter/src/storage/sql.rs`
+- `usemeter/src/storage/file.rs`
+- `usemeter/src/query.rs`
+
+### Agent 8.3: Billing & Reports
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create cost calculation
+- Build billing engine
+- Design report generation
+- Add alerting system
+
+**Deliverables**:
+- `usemeter/src/billing.rs`
+- `usemeter/src/reports.rs`
+- `usemeter/src/alerts.rs`
+
+### Agent 8.4: Integration & Publishing
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Integrate with privox, tripartite-rs, knowledge-vault
+- Create billing examples
+- Test integration
+- Complete docs
+- Create GitHub repo and publish
+
+**Deliverables**:
+- Integration examples
+- Billing examples
+- Integration tests
+- Complete docs
+- GitHub repo published
+- crates.io published
+
+---
+
+## Round 9: Create Web Dashboard Architecture
+
+**Goal**: Complete architecture documentation for Web Dashboard
+
+**Repository**: No repo yet (architecture only)
+
+**Dependencies**: Rounds 1-8 (tools documented)
+
+**Duration**: ~2 hours
+
+### Agent 9.1: Frontend Architecture
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design Next.js 14 architecture
+- Plan component hierarchy
+- Design state management (Zustand)
+- Plan API integration layer
+
+**Deliverables**:
+- `docs/ui/web-dashboard/architecture.md`
+- Component diagrams (Mermaid)
+- State flow diagrams
+- API integration patterns
+
+### Agent 9.2: Backend Architecture
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design Actix-web API structure
+- Plan WebSocket/SSE endpoints
+- Design authentication layer
+- Plan database schema
+
+**Deliverables**:
+- `docs/ui/web-dashboard/backend-architecture.md`
+- API endpoint documentation
+- WebSocket protocol spec
+- Database schema
+
+### Agent 9.3: User Guide
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write user journey documentation
+- Create UI mockups (described in text)
+- Document all features
+- Write troubleshooting guide
+
+**Deliverables**:
+- `docs/ui/web-dashboard/user-guide.md`
+- UI flow descriptions
+- Feature documentation
+- Troubleshooting guide
+
+### Agent 9.4: Developer Guide
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write setup instructions
+- Document development workflow
+- Create contribution guide
+- Build deployment documentation
+
+**Deliverables**:
+- `docs/ui/web-dashboard/developer-guide.md`
+- Setup instructions
+- Workflow documentation
+- Deployment guide
+
+---
+
+## Round 10: Create Desktop App Architecture
+
+**Goal**: Complete architecture documentation for Tauri Desktop App
+
+**Repository**: No repo yet (architecture only)
+
+**Dependencies**: Rounds 1-8 (tool integrations)
+
+**Duration**: ~2 hours
+
+### Agent 10.1: Tauri Architecture
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design Tauri 2.0 architecture
+- Plan Rust backend structure
+- Design IPC command patterns
+- Create window management strategy
+
+**Deliverables**:
+- `docs/ui/desktop-app/tauri-architecture.md`
+- IPC patterns documentation
+- Window management design
+- Backend structure plan
+
+### Agent 10.2: React Frontend
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design React component structure
+- Plan state management
+- Create UI component library
+- Design routing strategy
+
+**Deliverables**:
+- `docs/ui/desktop-app/react-architecture.md`
+- Component hierarchy
+- State management plan
+- Routing design
+
+### Agent 10.3: User Guide
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write desktop user journey
+- Create UI descriptions
+- Document features
+- Write troubleshooting guide
+
+**Deliverables**:
+- `docs/ui/desktop-app/user-guide.md`
+- UI flow documentation
+- Feature documentation
+- Troubleshooting guide
+
+### Agent 10.4: Developer Guide
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write desktop development setup
+- Document Tauri workflow
+- Create building/packaging guide
+- Write distribution documentation
+
+**Deliverables**:
+- `docs/ui/desktop-app/developer-guide.md`
+- Setup instructions
+- Build documentation
+- Distribution guide
+
+---
+
+## Round 11: Create VS Code Extension Architecture
+
+**Goal**: Complete architecture documentation for VS Code Extension
+
+**Repository**: No repo yet (architecture only)
+
+**Dependencies**: Rounds 1-8 (tool integrations)
+
+**Duration**: ~2 hours
+
+### Agent 11.1: Extension Architecture
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design VS Code extension structure
+- Plan TypeScript architecture
+- Design command patterns
+- Create configuration system
+
+**Deliverables**:
+- `docs/ui/vscode/architecture.md`
+- Command patterns
+- Configuration design
+- Extension structure
+
+### Agent 11.2: WASM Strategy
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design WASM compilation strategy
+- Plan JavaScript interop
+- Create performance optimization plan
+- Design debugging strategy
+
+**Deliverables**:
+- `docs/ui/vscode/wasm-strategy.md`
+- Interop patterns
+- Performance plan
+- Debugging guide
+
+### Agent 11.3: Editor Integration
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design inline completion
+- Plan code actions
+- Create language server integration
+- Design UI components
+
+**Deliverables**:
+- `docs/ui/vscode/editor-integration.md`
+- Completion patterns
+- Code action design
+- UI component plan
+
+### Agent 11.4: User & Developer Guides
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write user journey
+- Create feature documentation
+- Write development setup
+- Create testing guide
+
+**Deliverables**:
+- `docs/ui/vscode/user-guide.md`
+- `docs/ui/vscode/developer-guide.md`
+- Feature documentation
+- Testing guide
+
+---
+
+## Round 12: Create Mobile SDK Architecture
+
+**Goal**: Complete architecture documentation for Flutter Mobile SDK
+
+**Repository**: No repo yet (architecture only)
+
+**Dependencies**: Rounds 1-8 (tool integrations)
+
+**Duration**: ~2 hours
+
+### Agent 12.1: Flutter Architecture
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design Flutter app structure
+- Plan Dart architecture
+- Create widget hierarchy
+- Design navigation system
+
+**Deliverables**:
+- `docs/ui/mobile-sdk/flutter-architecture.md`
+- Widget hierarchy
+- Navigation design
+- State management plan
+
+### Agent 12.2: Platform Channels
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design platform channel architecture
+- Plan Kotlin (Android) integration
+- Plan Swift (iOS) integration
+- Create message passing patterns
+
+**Deliverables**:
+- `docs/ui/mobile-sdk/platform-channels.md`
+- Android integration plan
+- iOS integration plan
+- Message passing patterns
+
+### Agent 12.3: Offline-First Patterns
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design local storage strategy
+- Plan sync mechanisms
+- Create conflict resolution
+- Design offline workflows
+
+**Deliverables**:
+- `docs/ui/mobile-sdk/offline-first.md`
+- Storage strategy
+- Sync mechanisms
+- Conflict resolution
+
+### Agent 12.4: User & Developer Guides
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write mobile user journey
+- Create feature documentation
+- Write development setup
+- Create platform-specific guides
+
+**Deliverables**:
+- `docs/ui/mobile-sdk/user-guide.md`
+- `docs/ui/mobile-sdk/developer-guide.md`
+- Feature documentation
+- Platform guides
+
+---
+
+## Round 13: Build Integration Examples - Basic
+
+**Goal**: Create 5 basic integration examples
+
+**Repository**: https://github.com/SuperInstance/integration-examples
+
+**Dependencies**: Rounds 1-4 (tools available)
+
+**Duration**: ~2 hours
+
+### Agent 13.1: CLI Integration Examples
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Build CLI app using privox
+- Build CLI app using tripartite-rs
+- Build CLI app using knowledge-vault
+- Build CLI app using hwscan
+
+**Deliverables**:
+- `examples/cli/basic_redactor.rs`
+- `examples/cli/consensus_app.rs`
+- `examples/cli/knowledge_search.rs`
+- `examples/cli/hw_info.rs`
+
+### Agent 13.2: Web Service Integration Examples
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Build REST API with privox
+- Build WebSocket service with tripartite-rs
+- Build search API with knowledge-vault
+
+**Deliverables**:
+- `examples/web/redaction_api.rs`
+- `examples/web/consensus_ws.rs`
+- `examples/web/search_api.rs`
+
+### Agent 13.3: Library Integration Examples
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Combine privox + knowledge-vault
+- Combine tripartite-rs + privox
+- Combine hwscan + model-registry
+
+**Deliverables**:
+- `examples/lib/secure_rag.rs`
+- `examples/lib/consensus_redact.rs`
+- `examples/lib/hw_model_select.rs`
+
+### Agent 13.4: Documentation
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write integration guide
+- Create pattern catalog
+- Document common workflows
+- Build troubleshooting guide
+
+**Deliverables**:
+- `docs/integrations/guide.md`
+- `docs/integrations/patterns.md`
+- `docs/integrations/workflows.md`
+- `docs/integrations/troubleshooting.md`
+
+---
+
+## Round 14: Build Integration Examples - Advanced
+
+**Goal**: Create 5 advanced integration examples
+
+**Repository**: https://github.com/SuperInstance/advanced-examples
+
+**Dependencies**: Rounds 1-8 (all tools)
+
+**Duration**: ~3 hours
+
+### Agent 14.1: Full-Stack Application
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Build complete web app
+- Use privox + tripartite-rs + knowledge-vault
+- Implement authentication
+- Deploy with Docker
+
+**Deliverables**:
+- `examples/advanced/fullstack/`
+- Complete working app
+- Docker compose
+- Deployment guide
+
+### Agent 14.2: Multi-Agent System
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Build distributed agent system
+- Use tripartite-rs for consensus
+- Implement agent communication
+- Add monitoring
+
+**Deliverables**:
+- `examples/advanced/multi-agent/`
+- Working system
+- Monitoring setup
+- Architecture docs
+
+### Agent 14.3: Distributed System
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Build distributed knowledge system
+- Use knowledge-vault + quicunnel
+- Implement sync
+- Add conflict resolution
+
+**Deliverables**:
+- `examples/advanced/distributed/`
+- Working system
+- Sync mechanism
+- Conflict resolution docs
+
+### Agent 14.4: Performance Optimization
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create performance examples
+- Benchmark different configurations
+- Document optimization patterns
+- Create tuning guide
+
+**Deliverables**:
+- `examples/advanced/performance/`
+- Benchmark suite
+- Optimization patterns
+- Tuning guide
+
+---
+
+## Round 15: Create Unified Documentation Site
+
+**Goal**: Build mdBook documentation hub
+
+**Repository**: https://github.com/SuperInstance/docs
+
+**Dependencies**: All previous rounds
+
+**Duration**: ~2 hours
+
+### Agent 15.1: mdBook Structure
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design book structure
+- Create navigation
+- Set up mdBook configuration
+- Build search index
+
+**Deliverables**:
+- `docs/book/` directory
+- `docs/book/book.toml`
+- `docs/book/src/SUMMARY.md`
+- Complete chapter structure
+
+### Agent 15.2: Content Migration
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Migrate all READMEs to book
+- Create Getting Started guide
+- Build tutorial sections
+- Migrate API docs
+
+**Deliverables**:
+- Complete book content
+- Tutorial chapters
+- API reference chapters
+- Guides section
+
+### Agent 15.3: Visual Assets
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create diagrams for book
+- Build architecture visualizations
+- Add screenshot descriptions
+- Create logo specifications
+
+**Deliverables**:
+- Diagrams (Mermaid, PlantUML)
+- Architecture visualizations
+- Asset specifications
+- Logo guidelines
+
+### Agent 15.4: Publishing Setup
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Set up GitHub Pages
+- Configure auto-deployment
+- Create custom domain setup
+- Build CI for docs
+
+**Deliverables**:
+- `.github/workflows/docs.yml`
+- Deployment configuration
+- Custom domain instructions
+- CI workflow
+
+---
+
+## Round 16: Build Ecosystem CI/CD
+
+**Goal**: Unified CI/CD across all tool repos
+
+**Duration**: ~2 hours
+
+### Agent 16.1: Standardize CI Workflows
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create standard CI template
+- Add multi-platform testing
+- Include formatting and linting
+- Add security scanning
+
+**Deliverables**:
+- `.github/workflows/ci-template.yml`
+- Multi-platform config
+- Linting rules
+- Security scans
+
+### Agent 16.2: Shared GitHub Actions
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create reusable actions
+- Build composite actions
+- Add shared workflows
+- Document action usage
+
+**Deliverables**:
+- `.github/actions/` directory
+- Reusable actions
+- Composite actions
+- Usage documentation
+
+### Agent 16.3: Dependabot Organization
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Set up organization Dependabot
+- Create grouped updates
+- Add automerging config
+- Document dependency policy
+
+**Deliverables**:
+- `.github/dependabot.yml` template
+- Grouped updates config
+- Automerge configuration
+- Dependency policy doc
+
+### Agent 16.4: Release Automation
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create release automation
+- Add changelog generation
+- Build publishing workflow
+- Add announcement automation
+
+**Deliverables**:
+- Release automation scripts
+- Changelog generator
+- Publishing workflow
+- Announcement automation
+
+---
+
+## Round 17: Build Testing Infrastructure
+
+**Goal**: Unified testing across ecosystem
+
+**Duration**: ~2 hours
+
+### Agent 17.1: Integration Test Framework
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create integration test framework
+- Build test fixtures
+- Add test helpers
+- Create test database
+
+**Deliverables**:
+- `tests/framework/` directory
+- Test fixtures
+- Helper functions
+- Test database setup
+
+### Agent 17.2: E2E Test Suite
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create E2E test scenarios
+- Build test infrastructure
+- Add scenario tests
+- Create test runner
+
+**Deliverables**:
+- E2E test scenarios
+- Test infrastructure
+- Scenario tests
+- Test runner script
+
+### Agent 17.3: Performance Regression Tests
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create performance benchmarks
+- Add regression detection
+- Build performance dashboard
+- Create alerting system
+
+**Deliverables**:
+- Performance benchmarks
+- Regression detection
+- Performance dashboard
+- Alerting system
+
+### Agent 17.4: Fuzzing Infrastructure
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Set up fuzzing tests
+- Add fuzzing targets
+- Create fuzzing CI
+- Document fuzzing strategy
+
+**Deliverables**:
+- Fuzzing tests
+- Fuzzing targets
+- Fuzzing CI workflow
+- Fuzzing documentation
+
+---
+
+## Round 18: Create Contribution Guides
+
+**Goal**: Standardize contribution processes
+
+**Duration**: ~2 hours
+
+### Agent 18.1: Standard CONTRIBUTING.md
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create standard CONTRIBUTING.md template
+- Document development workflow
+- Add PR guidelines
+- Create code review checklist
+
+**Deliverables**:
+- `CONTRIBUTING.md` template
+- Development workflow docs
+- PR guidelines
+- Code review checklist
+
+### Agent 18.2: Code of Conduct
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create code of conduct
+- Add enforcement guidelines
+- Create reporting mechanism
+- Document community standards
+
+**Deliverables**:
+- `CODE_OF_CONDUCT.md`
+- Enforcement guidelines
+- Reporting mechanism
+- Community standards doc
+
+### Agent 18.3: PR Template Standardization
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create standard PR template
+- Add checklist items
+- Document PR types
+- Create review guidelines
+
+**Deliverables**:
+- `.github/PULL_REQUEST_TEMPLATE.md`
+- PR checklist
+- PR types documentation
+- Review guidelines
+
+### Agent 18.4: Reviewer Guidelines
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create reviewer guidelines
+- Document review criteria
+- Add approval process
+- Create reviewer checklist
+
+**Deliverables**:
+- Reviewer guidelines
+- Review criteria
+- Approval process
+- Reviewer checklist
+
+---
+
+## Round 19: Build Marketing Materials
+
+**Goal**: Launch-ready marketing assets
+
+**Duration**: ~2 hours
+
+### Agent 19.1: Launch Blog Posts
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write "Introducing SuperInstance Ecosystem"
+- Write "Privox: Privacy-First LLM Redaction"
+- Write "Tripartite-RS: Multi-Agent Consensus"
+- Write announcement posts
+
+**Deliverables**:
+- 4 complete blog posts
+- Social media copy
+- Email templates
+- Announcement posts
+
+### Agent 19.2: Demo Creations
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create demo scripts
+- Build demo applications
+- Write demo storyboards
+- Create GIF descriptions
+
+**Deliverables**:
+- Demo suite
+- Demo applications
+- Storyboard for videos
+- GIF descriptions
+
+### Agent 19.3: Logo & Branding
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design logo system
+- Create brand guidelines
+- Build asset library
+- Design badge system
+
+**Deliverables**:
+- Logo specifications
+- Brand guidelines
+- Asset library
+- Badge system
+
+### Agent 19.4: Launch Strategy
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create launch checklist
+- Design outreach campaign
+- Build press kit
+- Plan launch events
+
+**Deliverables**:
+- Launch checklist
+- Outreach plan
+- Press kit
+- Event plan
+
+---
+
+## Round 20: Build Performance Benchmarking Suite
+
+**Goal**: Comprehensive performance benchmarks
+
+**Duration**: ~2 hours
+
+### Agent 20.1: Benchmarking Framework
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create benchmarking framework
+- Add benchmark runners
+- Build result storage
+- Create reporting system
+
+**Deliverables**:
+- Benchmarking framework
+- Benchmark runners
+- Result storage
+- Reporting system
+
+### Agent 20.2: Comparison Benchmarks
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Compare vs competitors
+- Build comparison charts
+- Create performance reports
+- Add benchmark visualizations
+
+**Deliverables**:
+- Comparison benchmarks
+- Performance charts
+- Performance reports
+- Benchmark visualizations
+
+### Agent 20.3: Regression Detection
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create regression tests
+- Build regression detection
+- Add performance alerts
+- Create regression dashboard
+
+**Deliverables**:
+- Regression tests
+- Regression detection
+- Performance alerts
+- Regression dashboard
+
+### Agent 20.4: Performance Reports
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create performance reports
+- Build performance docs
+- Add optimization guides
+- Create tuning recommendations
+
+**Deliverables**:
+- Performance reports
+- Performance documentation
+- Optimization guides
+- Tuning recommendations
+
+---
+
+## Round 21: Build Security Auditing
+
+**Goal**: Security review and hardening
+
+**Duration**: ~2 hours
+
+### Agent 21.1: Security Audit Checklist
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create security audit checklist
+- Document security requirements
+- Build security review process
+- Create security standards
+
+**Deliverables**:
+- Security audit checklist
+- Security requirements
+- Review process
+- Security standards
+
+### Agent 21.2: Dependency Vulnerability Scanning
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Set up dependency scanning
+- Create vulnerability reports
+- Build remediation process
+- Add security CI
+
+**Deliverables**:
+- Dependency scanning
+- Vulnerability reports
+- Remediation process
+- Security CI workflow
+
+### Agent 21.3: Fuzzing and Penetration Testing
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Set up fuzzing tests
+- Create penetration tests
+- Build security tests
+- Document security findings
+
+**Deliverables**:
+- Fuzzing tests
+- Penetration tests
+- Security tests
+- Security findings report
+
+### Agent 21.4: Security Documentation
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write security documentation
+- Create threat models
+- Document security features
+- Build security guides
+
+**Deliverables**:
+- Security documentation
+- Threat models
+- Security features docs
+- Security guides
+
+---
+
+## Round 22: Create Migration Guides
+
+**Goal**: Help users migrate to new tools
+
+**Dependencies**: All tools published
+
+**Duration**: ~2 hours
+
+### Agent 22.1: SuperInstance Migration
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write SuperInstance → tool ecosystem guide
+- Create migration scripts
+- Document breaking changes
+- Build compatibility guide
+
+**Deliverables**:
+- Migration guide
+- Migration scripts
+- Breaking changes doc
+- Compatibility guide
+
+### Agent 22.2: Privox Migration
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write synesis-privacy → privox guide
+- Create migration examples
+- Document API changes
+- Build migration FAQ
+
+**Deliverables**:
+- Migration guide
+- Migration examples
+- API changes doc
+- Migration FAQ
+
+### Agent 22.3: Tripartite-RS Migration
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write synesis-core → tripartite-rs guide
+- Create migration examples
+- Document consensus changes
+- Build agent migration guide
+
+**Deliverables**:
+- Migration guide
+- Migration examples
+- Consensus changes doc
+- Agent migration guide
+
+### Agent 22.4: Knowledge-Vault Migration
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write synesis-knowledge → knowledge-vault guide
+- Create migration examples
+- Document API changes
+- Build data migration guide
+
+**Deliverables**:
+- Migration guide
+- Migration examples
+- API changes doc
+- Data migration guide
+
+---
+
+## Round 23: Build Training Materials
+
+**Goal**: Educational content for ecosystem
+
+**Dependencies**: All previous rounds
+
+**Duration**: ~2 hours
+
+### Agent 23.1: Video Course Outlines
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create video course outlines
+- Design lesson structures
+- Build learning paths
+- Create exercise sets
+
+**Deliverables**:
+- Video course outlines
+- Lesson structures
+- Learning paths
+- Exercise sets
+
+### Agent 23.2: Workshop Materials
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create workshop outlines
+- Build workshop exercises
+- Create instructor guides
+- Design workshop materials
+
+**Deliverables**:
+- Workshop outlines
+- Workshop exercises
+- Instructor guides
+- Workshop materials
+
+### Agent 23.3: Tutorial Series
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create tutorial series
+- Build tutorial examples
+- Write tutorial documentation
+- Create tutorial videos outlines
+
+**Deliverables**:
+- Tutorial series
+- Tutorial examples
+- Tutorial documentation
+- Video outlines
+
+### Agent 23.4: Certification Program
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design certification program
+- Create exam outlines
+- Build study guides
+- Create certification requirements
+
+**Deliverables**:
+- Certification program design
+- Exam outlines
+- Study guides
+- Certification requirements
+
+---
+
+## Round 24: Build Enterprise Features
+
+**Goal**: Enterprise-ready enhancements
+
+**Dependencies**: All tools stable
+
+**Duration**: ~2 hours
+
+### Agent 24.1: SSO Integration
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design SSO integration
+- Build SSO examples
+- Create SSO documentation
+- Add SSO testing
+
+**Deliverables**:
+- SSO integration design
+- SSO examples
+- SSO documentation
+- SSO tests
+
+### Agent 24.2: Audit Logging
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Create audit logging system
+- Build log storage
+- Design log queries
+- Add audit UI
+
+**Deliverables**:
+- Audit logging system
+- Log storage
+- Log query system
+- Audit UI
+
+### Agent 24.3: RBAC System
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Design RBAC system
+- Build role management
+- Create permission system
+- Add RBAC examples
+
+**Deliverables**:
+- RBAC system design
+- Role management
+- Permission system
+- RBAC examples
+
+### Agent 24.4: Enterprise Support Docs
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Write enterprise documentation
+- Create support guides
+- Build SLA documentation
+- Create enterprise onboarding guide
+
+**Deliverables**:
+- Enterprise documentation
+- Support guides
+- SLA documentation
+- Onboarding guide
+
+---
+
+## Round 25: Final Polish & Launch
+
+**Goal**: Launch-ready ecosystem
+
+**Dependencies**: All previous rounds
+
+**Duration**: ~2 hours
+
+### Agent 25.1: Pre-Launch Checklist
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Complete final checklist
+- Verify all tests pass
+- Check all documentation
+- Validate cross-references
+
+**Deliverables**:
+- Complete checklist
+- Test results
+- Documentation audit
+- Cross-reference validation
+
+### Agent 25.2: Release Preparation
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Tag all releases
+- Publish to crates.io
+- Create GitHub releases
+- Update ecosystem docs
+
+**Deliverables**:
+- All releases tagged
+- All crates published
+- Release notes complete
+- Ecosystem updated
+
+### Agent 25.3: Launch Execution
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Execute launch plan
+- Monitor launch metrics
+- Respond to launch feedback
+- Handle launch issues
+
+**Deliverables**:
+- Launch executed
+- Metrics report
+- Issues resolved
+- Launch summary
+
+### Agent 25.4: Post-Launch Review
+**Subagent**: `general-purpose`
+**Auto-Accept**: true
+**Task**:
+- Analyze launch results
+- Document learnings
+- Plan next iteration
+- Celebrate successes 🎉
+
+**Deliverables**:
+- Launch analysis
+- Learnings document
+- Next iteration plan
+- Success report
+
+---
+
+## Orchestrator Commands
+
+### Spawn a Round
 ```bash
-# === SETUP ===
-cargo install synesis-cli       # Install CLI
-synesis init                    # First-time setup
-
-# === DEVELOPMENT ===
-cargo build --workspace         # Build all
-cargo test --workspace          # Run all tests
-cargo clippy --workspace -- -D warnings  # Lint
-cargo fmt --all                 # Format code
-
-# === DOCUMENTATION ===
-cargo doc --no-deps --workspace --open  # Generate docs
-
-# === RELEASE ===
-cargo publish                   # Publish to crates.io
+# Spawn 4 agents with autoaccept
+Task agent1_id (subagent_type="general-purpose", autoaccept=true, prompt="...")
+Task agent2_id (subagent_type="general-purpose", autoaccept=true, prompt="...")
+Task agent3_id (subagent_type="general-purpose", autoaccept=true, prompt="...")
+Task agent4_id (subagent_type="general-purpose", autoaccept=true, prompt="...")
 ```
 
-### Project Structure
-
-```
-/mnt/c/claudesuperinstance/
-├── CLAUDE.md                   ← This file (ecosystem guide)
-├── README.md                   ← User overview
-├── Cargo.toml                  ← Workspace config
-│
-├── crates/                     ← SuperInstance Core
-│   ├── synesis-cli/            ← CLI
-│   ├── synesis-core/           ← Core orchestrator
-│   ├── synesis-knowledge/      ← Knowledge tool
-│   ├── synesis-models/         ├── Models tool
-│   ├── synesis-privacy/        ← Privacy tool
-│   └── synesis-cloud/          ├── Cloud tool
-│
-├── docs/                       ← UI documentation
-│   ├── CLI_*.md                ← CLI docs
-│   ├── WEB_*.md                ← Web dashboard docs
-│   ├── DESKTOP_*.md            ← Desktop app docs
-│   ├── VSCODE_*.md             ← VS Code extension docs
-│   └── MOBILE_*.md             ← Mobile SDK docs
-│
-├── tools/                      ← Tool integration guides
-│   ├── PRIVACY_PROXY_TOOL.md
-│   ├── KNOWLEDGE_VAULT_TOOL.md
-│   └── ...
-│
-├── phases/                     ← Development phases
-├── status/                     ← Status reports
-└── architecture/               ← Architecture docs
-```
-
-### Quality Standards
-
-**Before Committing**:
-
+### Monitor Progress
 ```bash
-# 1. All tests pass
+# Check agent outputs regularly
+TaskOutput agent1_id (block=true, timeout=300000)
+TaskOutput agent2_id (block=true, timeout=300000)
+TaskOutput agent3_id (block=true, timeout=300000)
+TaskOutput agent4_id (block=true, timeout=300000)
+```
+
+### Validate Completion
+```bash
+# Verify round deliverables
 cargo test --workspace
-
-# 2. No warnings
-cargo clippy --workspace --all-targets -- -D warnings
-
-# 3. Formatted
-cargo fmt --all -- --check
-
-# 4. Documented
-cargo doc --no-deps --workspace
+cargo clippy --all-targets
+cargo fmt --all
+git status
+git log --oneline -5
 ```
 
-**Code Quality Gates**:
-- ✅ All tests passing (100%)
-- ✅ Zero compiler warnings
-- ✅ Zero clippy warnings
-- ✅ All public APIs documented
-- ✅ Thread safety verified
+### Create and Push Repo
+```bash
+# Create GitHub repo
+gh repo create SuperInstance/<tool> --private --description "<description>"
 
-### Repository Links
+# Add remote
+git remote add <tool> https://github.com/SuperInstance/<tool>.git
 
-**Core**:
-- SuperInstance: https://github.com/SuperInstance/Tripartite1
+# Push
+git push <tool> main
 
-**Tools**:
-- privacy-proxy: https://github.com/SuperInstance/privacy-proxy
-- knowledge-vault: https://github.com/SuperInstance/knowledge-vault
-- quic-tunnel: https://github.com/SuperInstance/quic-tunnel
-- consensus-engine: https://github.com/SuperInstance/consensus-engine
-- hw-detect: https://github.com/SuperInstance/hw-detect
-- model-registry: https://github.com/SuperInstance/model-registry
-- ollama-bridge: https://github.com/SuperInstance/ollama-bridge
-- lmstudio-bridge: https://github.com/SuperInstance/lmstudio-bridge
-- localai-adapter: https://github.com/SuperInstance/localai-adapter
-- metered-billing: https://github.com/SuperInstance/metered-billing
-- token-vault: https://github.com/SuperInstance/token-vault
+# Create release
+gh release create v0.1.0 --notes "Release notes here"
 
-**Integration Tools**:
-- vllm-bridge: https://github.com/SuperInstance/vllm-bridge
-- nemo-bridge: https://github.com/SuperInstance/nemo-bridge
-- vila-bridge: https://github.com/SuperInstance/vila-bridge
+# Publish to crates.io (if Rust)
+cd <tool>
+cargo publish
+```
+
+### Plan Next Round
+```bash
+# Review next round's requirements
+# Update agent specializations if needed
+# Prepare agent prompts
+# Verify dependencies are met
+# Spawn next round only when current is 100% complete
+```
+
+---
+
+## Round Tracking
+
+For each round, maintain in this file:
+
+```markdown
+## Round N: [Round Name]
+
+**Status**: [In Progress/Complete]
+**Started**: [Timestamp]
+**Completed**: [Timestamp]
+**Duration**: [Actual time]
+
+### Agent Status
+- Agent N.1: [Status] - [Brief summary]
+- Agent N.2: [Status] - [Brief summary]
+- Agent N.3: [Status] - [Brief summary]
+- Agent N.4: [Status] - [Brief summary]
+
+### Deliverables
+- [ ] Deliverable 1
+- [ ] Deliverable 2
+- [ ] Deliverable 3
+- [ ] Deliverable 4
+
+### Quality Check
+- [ ] All tests pass
+- [ ] Zero warnings
+- [ ] Documentation complete
+- [ ] Committed to git
+- [ ] Repo created (if applicable)
+- [ ] Pushed to GitHub (if applicable)
+
+### Notes
+- Issues encountered:
+- Solutions applied:
+- Lessons learned:
+```
 
 ---
 
 ## Current Status
 
-### Phase 1: Local Kernel ✅ COMPLETE
-
-**Core Features**:
-- ✅ CLI with all commands working
-- ✅ Tripartite consensus system
-- ✅ Privacy proxy (18 redaction patterns)
-- ✅ Knowledge vault (SQLite-VSS)
-- ✅ Hardware detection
-- ✅ Model management
-
-**Test Results**: 298/298 passing (100%)
-
-### Phase 2: Cloud Mesh ✅ COMPLETE
-
-**Cloud Features**:
-- ✅ QUIC tunnel with mTLS
-- ✅ Cloud escalation client
-- ✅ Billing system with local ledger
-- ✅ LoRA upload and hot-swap
-- ✅ Collaborator system
-- ✅ Telemetry and heartbeat
-- ✅ Binary message protocol
-
-**Test Results**: 68/68 cloud tests passing
-
-### Phase 3: Tool Ecosystem 🔄 IN PROGRESS
-
-**Completed**:
-- ✅ Ecosystem strategy defined
-- ✅ Tool extraction criteria established
-- ✅ Repository templates created
-- ✅ Documentation standards set
-
-**In Progress**:
-- 🔄 Extract tools to independent repos
-- 🔄 Document UI architectures
-- 🔄 Build plug-and-play integrations
-
-**Next Steps**:
-1. Extract privacy-proxy to standalone repo
-2. Extract knowledge-vault to standalone repo
-3. Extract consensus-engine to standalone repo
-4. Complete UI architecture documentation
-5. Build tool showcase applications
+**Round**: 1
+**Task**: Extract Privox as Independent Repository
+**Status**: 🔄 **READY TO SPAWN AGENTS**
+**Action**: Spawn 4 agents now with autoaccept=true
 
 ---
 
-## Key Principles
+**Orchestrator**: Claude (Sonnet 4.5)
+**Strategy**: 25 Rounds × 4 Agents = Complete Ecosystem Build
+**Auto-Accept**: Enabled
+**Repo Creation**: Yes, for all independent tools
+**Push Strategy**: Push when complete, tested, documented
 
-### Tools First, Applications Second
-
-**Don't build a monolith. Build tools.**
-
-Monoliths are hard to reuse. Tools are easy to compose.
-
-**Example**:
-- ❌ Don't: Build "SuperInstance App" with privacy redaction built in
-- ✅ Do: Build "privacy-proxy" tool, then use it in SuperInstance App
-
-### Cross-Reference Everything
-
-**Show, don't just tell.**
-
-Every tool should show:
-- Where it's used
-- What it requires
-- What complements it
-
-**Benefit**: Developers discover related tools organically.
-
-### Applications Are Thin Layers
-
-**UIs should be minimal composition layers.**
-
-Applications shouldn't reimplement tools—they should compose them.
-
-**Example**:
-```rust
-// Thin application layer
-use privacy_proxy::Redactor;
-use knowledge_vault::KnowledgeBase;
-
-fn main() {
-    // Compose tools
-    let redactor = Redactor::new()?;
-    let kb = KnowledgeBase::new()?;
-
-    // Do something useful
-}
-```
-
-### User Choice Over Lock-In
-
-**Let users assemble their stack.**
-
-Don't force all-or-nothing adoption. Let users pick what they need.
-
-**Example**:
-- User wants just privacy redaction? Install privacy-proxy
-- User wants RAG system? Install knowledge-vault
-- User wants everything? Install SuperInstance Core
-
----
-
-## FAQ
-
-### Why not keep everything in one repo?
-
-**Single repo** (monorepo) vs **Multiple repos** (polyrepo):
-
-| Aspect | Monorepo | Polyrepo (Our Choice) |
-|--------|----------|----------------------|
-| **Discovery** | Hard to find components | Each tool has its own presence |
-| **Adoption** | All-or-nothing | Adopt piece by piece |
-| **Independence** | Coupled releases | Independent versions |
-| **Contributors** | Intimidating | Focused, approachable |
-| **Search** | Mixed results | Tool-specific results |
-
-### How do tools stay in sync?
-
-**SemVer and compatibility matrix**:
-
-- Tools use semantic versioning
-- Core specifies compatible versions
-- Breaking changes documented in CHANGELOG
-
-**Example**:
-```toml
-# Core depends on specific tool versions
-[dependencies]
-privacy-proxy = "0.2"    # Compatible with 0.2.x
-knowledge-vault = "0.2.1" # Exact version or range
-```
-
-### What if two tools have conflicting dependencies?
-
-**Rust's dependency resolver handles this**:
-
-```toml
-# Tool A depends on dependency X v1.0
-# Tool B depends on dependency X v2.0
-# Rust compiles both versions separately
-# No conflict at runtime (different namespaces)
-```
-
-### How do I contribute to the ecosystem?
-
-1. **Identify a tool to extract**: Look for generalizable code
-2. **Create repository**: Use our template
-3. **Extract and test**: Move code, add tests
-4. **Document**: Add integration docs
-5. **Publish**: Release on crates.io
-6. **Cross-reference**: Update related tools
-
-### Can I build a commercial app with these tools?
-
-**Yes! Apache 2.0 license permits commercial use**.
-
-Requirements:
-- Keep license notices
-- State changes (but don't imply endorsement)
-- No liability warranty
-
----
-
-**Last Updated**: 2026-01-08
-**Version**: v0.2.0
-**Tests**: 298/298 passing (100%)
-**Status**: ✅ PRODUCTION READY
-
-**Next Phase**: Tool Ecosystem Expansion & UI Implementation
-
----
-
-*For detailed documentation on specific tools, see their respective repositories.*
-*For UI architecture docs, see docs/UI_*.md files.*
+🚀 **EXECUTE ROUND 1 NOW**
