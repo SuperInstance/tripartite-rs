@@ -5,11 +5,9 @@
 //! - Weighted voting for classification
 //! - Single round (typical for ML ensembles)
 
-use tripartite::{
-    Agent, ConsensusEngine, ConsensusConfig, AgentInput, AgentOutput, AgentWeights,
-};
 use async_trait::async_trait;
 use std::sync::Arc;
+use tripartite::{Agent, AgentInput, AgentOutput, AgentWeights, ConsensusConfig, ConsensusEngine};
 
 /// ML model that makes predictions
 struct MLModel {
@@ -21,12 +19,10 @@ struct MLModel {
 #[async_trait]
 impl Agent for MLModel {
     async fn process(&self, _input: AgentInput) -> Result<AgentOutput, tripartite::Error> {
-        Ok(AgentOutput::new(
-            &self.name,
-            self.prediction.clone(),
-            self.confidence,
+        Ok(
+            AgentOutput::new(&self.name, self.prediction.clone(), self.confidence)
+                .with_reasoning(format!("Based on training data and {} features", 1000)),
         )
-        .with_reasoning(format!("Based on training data and {} features", 1000)))
     }
 
     fn name(&self) -> &str {
@@ -67,27 +63,39 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let nn_model = Arc::new(MLModel {
         name: "Neural Network".to_string(),
-        prediction: "ham".to_string(),  // Disagrees!
+        prediction: "ham".to_string(), // Disagrees!
         confidence: 0.65,
     });
 
     println!("Created 3 ML models:");
-    println!("  - {}: predicts '{}' with {:.2} confidence", rf_model.name, rf_model.prediction, rf_model.confidence);
-    println!("  - {}: predicts '{}' with {:.2} confidence", svm_model.name, svm_model.prediction, svm_model.confidence);
-    println!("  - {}: predicts '{}' with {:.2} confidence", nn_model.name, nn_model.prediction, nn_model.confidence);
+    println!(
+        "  - {}: predicts '{}' with {:.2} confidence",
+        rf_model.name, rf_model.prediction, rf_model.confidence
+    );
+    println!(
+        "  - {}: predicts '{}' with {:.2} confidence",
+        svm_model.name, svm_model.prediction, svm_model.confidence
+    );
+    println!(
+        "  - {}: predicts '{}' with {:.2} confidence",
+        nn_model.name, nn_model.prediction, nn_model.confidence
+    );
     println!();
 
     // Configure consensus for ML ensemble
     // Single round is typical for ML (no revision)
     let config = ConsensusConfig {
-        threshold: 0.85,  // 85% confidence required
-        max_rounds: 1,    // Single round (no revision for ML)
-        weights: AgentWeights::default(),  // Default weights
+        threshold: 0.85,                  // 85% confidence required
+        max_rounds: 1,                    // Single round (no revision for ML)
+        weights: AgentWeights::default(), // Default weights
     };
 
     println!("Ensemble Configuration:");
     println!("  - Threshold: {:.0}", config.threshold * 100.0);
-    println!("  - Max Rounds: {} (ML ensembles typically use single round)", config.max_rounds);
+    println!(
+        "  - Max Rounds: {} (ML ensembles typically use single round)",
+        config.max_rounds
+    );
     println!("  - Weights: Default");
     println!();
 
@@ -100,7 +108,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Results ===");
     println!("Final Prediction: {}", outcome.content);
     println!("Consensus Reached: {}", outcome.is_consensus());
-    println!("Aggregate Confidence: {:.2}", outcome.aggregate_confidence().unwrap_or(0.0));
+    println!(
+        "Aggregate Confidence: {:.2}",
+        outcome.aggregate_confidence().unwrap_or(0.0)
+    );
     println!("Duration: {}ms", outcome.total_duration_ms);
 
     // Calculate aggregate manually

@@ -8,6 +8,9 @@ repository = "https://github.com/SuperInstance/tripartite-rs"
 authors = ["SuperInstance Team"]
 edition = "2021"
 readme = "README.md"
+keywords = ["consensus", "multi-agent", "voting", "ai", "async"]
+categories = ["asynchronous", "concurrency", "science", "algorithms"]
+rust-version = "1.75"
 
 [dependencies]
 # Async runtime

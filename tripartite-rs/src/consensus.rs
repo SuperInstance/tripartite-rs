@@ -169,8 +169,7 @@ where
             );
 
             // Evaluate consensus
-            let result =
-                self.evaluate(&pathos_response, &logos_response, &ethos_response, round);
+            let result = self.evaluate(&pathos_response, &logos_response, &ethos_response, round);
 
             match result {
                 ConsensusResult::Reached {
@@ -341,7 +340,10 @@ where
             .min(ethos.confidence);
 
         if pathos.confidence == min_confidence {
-            feedback.push_str(&format!("{} is uncertain about the intent. ", self.pathos.name()));
+            feedback.push_str(&format!(
+                "{} is uncertain about the intent. ",
+                self.pathos.name()
+            ));
             if let Some(reasoning) = &pathos.reasoning {
                 feedback.push_str(&format!("{} says: {}. ", self.pathos.name(), reasoning));
             }
@@ -358,7 +360,10 @@ where
         }
 
         if ethos.confidence == min_confidence {
-            feedback.push_str(&format!("{} has concerns about the response. ", self.ethos.name()));
+            feedback.push_str(&format!(
+                "{} has concerns about the response. ",
+                self.ethos.name()
+            ));
             if let Some(reasoning) = &ethos.reasoning {
                 feedback.push_str(&format!("{} says: {}. ", self.ethos.name(), reasoning));
             }
@@ -544,7 +549,11 @@ mod tests {
         }
 
         async fn process(&self, _input: AgentInput) -> Result<AgentOutput> {
-            Ok(AgentOutput::new(self.name, "test".to_string(), self.confidence))
+            Ok(AgentOutput::new(
+                self.name,
+                "test".to_string(),
+                self.confidence,
+            ))
         }
 
         fn is_ready(&self) -> bool {

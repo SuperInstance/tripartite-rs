@@ -5,16 +5,14 @@
 //! - Round 2: High confidence (0.95) after receiving feedback
 //! - Shows feedback mechanism and revision process
 
-use tripartite::{
-    Agent, ConsensusEngine, ConsensusConfig, AgentInput, AgentOutput, AgentWeights,
-};
 use async_trait::async_trait;
 use std::sync::Arc;
+use tripartite::{Agent, AgentInput, AgentOutput, AgentWeights, ConsensusConfig, ConsensusEngine};
 
 /// Agent that needs multiple rounds to reach high confidence
 struct RevisingAgent {
     name: String,
-    round_needed: u8,  // Number of rounds before reaching high confidence
+    round_needed: u8, // Number of rounds before reaching high confidence
 }
 
 #[async_trait]
@@ -31,9 +29,9 @@ impl Agent for RevisingAgent {
 
         // Low confidence in early rounds, high in later rounds
         let confidence = if current_round >= self.round_needed {
-            0.95  // High confidence after enough rounds
+            0.95 // High confidence after enough rounds
         } else {
-            0.60  // Low confidence in early rounds
+            0.60 // Low confidence in early rounds
         };
 
         Ok(AgentOutput::new(
@@ -84,16 +82,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     println!("Created 3 revising agents:");
-    println!("  - Agent 1 (needs {} rounds to converge)", agent_1.round_needed);
-    println!("  - Agent 2 (needs {} rounds to converge)", agent_2.round_needed);
-    println!("  - Agent 3 (needs {} rounds to converge)", agent_3.round_needed);
+    println!(
+        "  - Agent 1 (needs {} rounds to converge)",
+        agent_1.round_needed
+    );
+    println!(
+        "  - Agent 2 (needs {} rounds to converge)",
+        agent_2.round_needed
+    );
+    println!(
+        "  - Agent 3 (needs {} rounds to converge)",
+        agent_3.round_needed
+    );
     println!();
 
     // Configure consensus with uniform weights
     let config = ConsensusConfig {
-        threshold: 0.85,  // 85% threshold
-        max_rounds: 5,    // Allow up to 5 rounds
-        weights: AgentWeights::default(),  // Default weights
+        threshold: 0.85,                  // 85% threshold
+        max_rounds: 5,                    // Allow up to 5 rounds
+        weights: AgentWeights::default(), // Default weights
     };
 
     println!("Consensus Configuration:");
@@ -111,7 +118,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Results ===");
     println!("Consensus Reached: {}", outcome.is_consensus());
     println!("Rounds Needed: {}", outcome.rounds());
-    println!("Final Confidence: {:.2}", outcome.aggregate_confidence().unwrap_or(0.0));
+    println!(
+        "Final Confidence: {:.2}",
+        outcome.aggregate_confidence().unwrap_or(0.0)
+    );
     println!("Duration: {}ms", outcome.total_duration_ms);
 
     // Show progression across rounds

@@ -182,7 +182,8 @@ mod tests {
             response: "Previous response".to_string(),
             timestamp: chrono::Utc::now(),
         }];
-        let manifest = A2AManifest::with_session("New query".to_string(), "session-123".to_string(), history);
+        let manifest =
+            A2AManifest::with_session("New query".to_string(), "session-123".to_string(), history);
         assert_eq!(manifest.session_id, "session-123");
         assert_eq!(manifest.history.len(), 1);
     }

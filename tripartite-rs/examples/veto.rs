@@ -5,11 +5,11 @@
 //! - Veto overrides other agents' consensus
 //! - Critical for safety-critical applications
 
-use tripartite::{
-    Agent, ConsensusEngine, ConsensusConfig, ConsensusVote, AgentInput, AgentOutput, AgentWeights,
-};
 use async_trait::async_trait;
 use std::sync::Arc;
+use tripartite::{
+    Agent, AgentInput, AgentOutput, AgentWeights, ConsensusConfig, ConsensusEngine, ConsensusVote,
+};
 
 /// Safety agent that checks for dangerous content
 struct SafetyAgent;
@@ -28,20 +28,21 @@ impl Agent for SafetyAgent {
             return Ok(AgentOutput::new(
                 "Safety",
                 "Request blocked: Dangerous content detected".to_string(),
-                1.0,  // 100% confidence in veto
+                1.0, // 100% confidence in veto
             )
-            .with_vote(ConsensusVote::new("Safety", false, 1.0)
-                .with_reasoning("Query contains prohibited dangerous keywords".to_string())));
+            .with_vote(
+                ConsensusVote::new("Safety", false, 1.0)
+                    .with_reasoning("Query contains prohibited dangerous keywords".to_string()),
+            ));
         }
 
         // Approve safe requests (vote yes with 100% confidence)
-        Ok(AgentOutput::new(
-            "Safety",
-            "Request approved".to_string(),
-            1.0,
+        Ok(
+            AgentOutput::new("Safety", "Request approved".to_string(), 1.0).with_vote(
+                ConsensusVote::new("Safety", true, 1.0)
+                    .with_reasoning("No safety concerns detected".to_string()),
+            ),
         )
-        .with_vote(ConsensusVote::new("Safety", true, 1.0)
-            .with_reasoning("No safety concerns detected".to_string())))
     }
 
     fn name(&self) -> &str {
@@ -72,7 +73,7 @@ impl Agent for RegularAgent {
         Ok(AgentOutput::new(
             &self.name,
             format!("Response to: {}", input.manifest.query),
-            0.95,  // High confidence
+            0.95, // High confidence
         ))
     }
 
@@ -108,7 +109,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         name: "Agent 2".to_string(),
     });
 
-    let safety_agent = Arc::new(SafetyAgent);  // Last agent (ethos) has veto power
+    let safety_agent = Arc::new(SafetyAgent); // Last agent (ethos) has veto power
 
     println!("Created 3 agents:");
     println!("  - Agent 1: Regular response agent");
@@ -175,7 +176,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("  - Consensus: {}", hack_outcome.is_consensus());
     println!("  - Outcome: {:?}", hack_outcome.result);
 
-    if matches!(hack_outcome.result, tripartite::ConsensusResult::Vetoed { .. }) {
+    if matches!(
+        hack_outcome.result,
+        tripartite::ConsensusResult::Vetoed { .. }
+    ) {
         println!("  ✗ Malicious request blocked successfully");
     }
 

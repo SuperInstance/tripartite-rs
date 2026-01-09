@@ -6,11 +6,9 @@
 //! - Junior expert gets 20% weight
 //! - Consensus threshold: 0.90
 
-use tripartite::{
-    Agent, ConsensusEngine, ConsensusConfig, AgentWeights, AgentInput, AgentOutput,
-};
 use async_trait::async_trait;
 use std::sync::Arc;
+use tripartite::{Agent, AgentInput, AgentOutput, AgentWeights, ConsensusConfig, ConsensusEngine};
 
 /// Expert agent with a fixed response
 struct ExpertAgent {
@@ -54,31 +52,40 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create three experts with different confidence levels
     let senior = Arc::new(ExpertAgent {
         name: "Senior Engineer".to_string(),
-        confidence: 0.95,  // Very confident
+        confidence: 0.95, // Very confident
     });
 
     let mid_level = Arc::new(ExpertAgent {
         name: "Mid-level Engineer".to_string(),
-        confidence: 0.75,  // Moderately confident
+        confidence: 0.75, // Moderately confident
     });
 
     let junior = Arc::new(ExpertAgent {
         name: "Junior Engineer".to_string(),
-        confidence: 0.60,  // Less confident
+        confidence: 0.60, // Less confident
     });
 
     println!("Created 3 experts:");
-    println!("  - Senior Engineer: {:.2} confidence (50% weight)", senior.confidence);
-    println!("  - Mid-level Engineer: {:.2} confidence (30% weight)", mid_level.confidence);
-    println!("  - Junior Engineer: {:.2} confidence (20% weight)", junior.confidence);
+    println!(
+        "  - Senior Engineer: {:.2} confidence (50% weight)",
+        senior.confidence
+    );
+    println!(
+        "  - Mid-level Engineer: {:.2} confidence (30% weight)",
+        mid_level.confidence
+    );
+    println!(
+        "  - Junior Engineer: {:.2} confidence (20% weight)",
+        junior.confidence
+    );
     println!();
 
     // Configure consensus with custom weights
     let config = ConsensusConfig {
-        threshold: 0.90,  // Higher threshold (90%)
+        threshold: 0.90, // Higher threshold (90%)
         max_rounds: 3,
         weights: AgentWeights {
-            pathos: 0.50,  // Senior gets 50% weight
+            pathos: 0.50, // Senior gets 50% weight
             logos: 0.30,  // Mid-level gets 30% weight
             ethos: 0.20,  // Junior gets 20% weight
         },
@@ -87,9 +94,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Consensus Configuration:");
     println!("  - Threshold: {:.0}", config.threshold * 100.0);
     println!("  - Max Rounds: {}", config.max_rounds);
-    println!("  - Agent 1 (Senior) Weight: {:.0}", config.weights.pathos * 100.0);
-    println!("  - Agent 2 (Mid) Weight: {:.0}", config.weights.logos * 100.0);
-    println!("  - Agent 3 (Junior) Weight: {:.0}", config.weights.ethos * 100.0);
+    println!(
+        "  - Agent 1 (Senior) Weight: {:.0}",
+        config.weights.pathos * 100.0
+    );
+    println!(
+        "  - Agent 2 (Mid) Weight: {:.0}",
+        config.weights.logos * 100.0
+    );
+    println!(
+        "  - Agent 3 (Junior) Weight: {:.0}",
+        config.weights.ethos * 100.0
+    );
     println!();
 
     // Create engine and run consensus
@@ -107,8 +123,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("=== Results ===");
     println!("Consensus Reached: {}", outcome.is_consensus());
-    println!("Aggregate Confidence: {:.2}", outcome.aggregate_confidence().unwrap_or(0.0));
-    println!("Expected Aggregate: {:.2} (calculated manually)", expected_aggregate);
+    println!(
+        "Aggregate Confidence: {:.2}",
+        outcome.aggregate_confidence().unwrap_or(0.0)
+    );
+    println!(
+        "Expected Aggregate: {:.2} (calculated manually)",
+        expected_aggregate
+    );
     println!("Threshold Required: {:.2}", 0.90);
     println!("Rounds: {}", outcome.rounds());
 

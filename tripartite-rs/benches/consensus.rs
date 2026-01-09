@@ -5,10 +5,10 @@
 // - Multi-round consensus performance
 // - Different threshold configurations
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
-use tripartite::{Agent, AgentInput, AgentOutput, ConsensusEngine, ConsensusConfig};
 use async_trait::async_trait;
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use std::time::Duration;
+use tripartite::{Agent, AgentInput, AgentOutput, ConsensusConfig, ConsensusEngine};
 
 // Mock agent for benchmarking
 struct MockAgent {
@@ -49,10 +49,7 @@ impl Agent for MockAgent {
 }
 
 fn create_mock_agent(name: String, latency_ms: u64) -> std::sync::Arc<MockAgent> {
-    std::sync::Arc::new(MockAgent {
-        name,
-        latency_ms,
-    })
+    std::sync::Arc::new(MockAgent { name, latency_ms })
 }
 
 fn bench_consensus_three_agents(c: &mut Criterion) {
@@ -64,15 +61,13 @@ fn bench_consensus_three_agents(c: &mut Criterion) {
         let agent_2 = create_mock_agent("agent_1".to_string(), 0);
         let agent_3 = create_mock_agent("agent_2".to_string(), 0);
 
-        b.to_async(tokio::runtime::Runtime::new().unwrap()).iter(|| async {
-            let mut engine = ConsensusEngine::with_agents(
-                agent_1.clone(),
-                agent_2.clone(),
-                agent_3.clone(),
-            );
+        b.to_async(tokio::runtime::Runtime::new().unwrap())
+            .iter(|| async {
+                let mut engine =
+                    ConsensusEngine::with_agents(agent_1.clone(), agent_2.clone(), agent_3.clone());
 
-            let _outcome = engine.run("Test query").await;
-        });
+                let _outcome = engine.run("Test query").await;
+            });
     });
 
     // Benchmark with 1ms latency per agent
@@ -81,15 +76,13 @@ fn bench_consensus_three_agents(c: &mut Criterion) {
         let agent_2 = create_mock_agent("agent_1".to_string(), 1);
         let agent_3 = create_mock_agent("agent_2".to_string(), 1);
 
-        b.to_async(tokio::runtime::Runtime::new().unwrap()).iter(|| async {
-            let mut engine = ConsensusEngine::with_agents(
-                agent_1.clone(),
-                agent_2.clone(),
-                agent_3.clone(),
-            );
+        b.to_async(tokio::runtime::Runtime::new().unwrap())
+            .iter(|| async {
+                let mut engine =
+                    ConsensusEngine::with_agents(agent_1.clone(), agent_2.clone(), agent_3.clone());
 
-            let _outcome = engine.run("Test query").await;
-        });
+                let _outcome = engine.run("Test query").await;
+            });
     });
 
     group.finish();
@@ -108,21 +101,22 @@ fn bench_consensus_multi_round(c: &mut Criterion) {
                 let agent_2 = create_mock_agent("agent_1".to_string(), 0);
                 let agent_3 = create_mock_agent("agent_2".to_string(), 0);
 
-                b.to_async(tokio::runtime::Runtime::new().unwrap()).iter(|| async {
-                    let config = ConsensusConfig {
-                        threshold,
-                        max_rounds: 5,
-                        weights: tripartite::AgentWeights::default(),
-                    };
-                    let mut engine = ConsensusEngine::new(
-                        config,
-                        agent_1.clone(),
-                        agent_2.clone(),
-                        agent_3.clone(),
-                    );
+                b.to_async(tokio::runtime::Runtime::new().unwrap())
+                    .iter(|| async {
+                        let config = ConsensusConfig {
+                            threshold,
+                            max_rounds: 5,
+                            weights: tripartite::AgentWeights::default(),
+                        };
+                        let mut engine = ConsensusEngine::new(
+                            config,
+                            agent_1.clone(),
+                            agent_2.clone(),
+                            agent_3.clone(),
+                        );
 
-                    let _outcome = engine.run("Test query").await;
-                });
+                        let _outcome = engine.run("Test query").await;
+                    });
             },
         );
     }
@@ -142,15 +136,16 @@ fn bench_consensus_latency(c: &mut Criterion) {
                 let agent_2 = create_mock_agent("agent_1".to_string(), latency_ms);
                 let agent_3 = create_mock_agent("agent_2".to_string(), latency_ms);
 
-                b.to_async(tokio::runtime::Runtime::new().unwrap()).iter(|| async {
-                    let mut engine = ConsensusEngine::with_agents(
-                        agent_1.clone(),
-                        agent_2.clone(),
-                        agent_3.clone(),
-                    );
+                b.to_async(tokio::runtime::Runtime::new().unwrap())
+                    .iter(|| async {
+                        let mut engine = ConsensusEngine::with_agents(
+                            agent_1.clone(),
+                            agent_2.clone(),
+                            agent_3.clone(),
+                        );
 
-                    let _outcome = engine.run("Test query").await;
-                });
+                        let _outcome = engine.run("Test query").await;
+                    });
             },
         );
     }

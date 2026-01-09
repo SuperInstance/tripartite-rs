@@ -5,9 +5,9 @@
 //! - Run consensus on a query
 //! - Check if consensus was reached
 
-use tripartite::{Agent, ConsensusEngine, ConsensusConfig, AgentInput, AgentOutput};
 use async_trait::async_trait;
 use std::sync::Arc;
+use tripartite::{Agent, AgentInput, AgentOutput, ConsensusConfig, ConsensusEngine};
 
 /// Simple agent that returns a fixed response with fixed confidence
 struct SimpleAgent {
@@ -89,7 +89,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Results ===");
     println!("Consensus Reached: {}", outcome.is_consensus());
     println!("Content: {}", outcome.content);
-    println!("Aggregate Confidence: {:.2}", outcome.aggregate_confidence().unwrap_or(0.0));
+    println!(
+        "Aggregate Confidence: {:.2}",
+        outcome.aggregate_confidence().unwrap_or(0.0)
+    );
     println!("Rounds: {}", outcome.rounds());
     println!("Duration: {}ms", outcome.total_duration_ms);
 

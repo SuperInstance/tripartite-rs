@@ -45,8 +45,8 @@ pub mod manifest;
 // Re-exports
 pub use agent::{Agent, AgentConfig, AgentInput, AgentOutput, ConsensusVote};
 pub use consensus::{
-    AgentWeights, ConsensusConfig, ConsensusEngine, ConsensusOutcome, ConsensusResult,
-    Verdict, Votes,
+    AgentWeights, ConsensusConfig, ConsensusEngine, ConsensusOutcome, ConsensusResult, Verdict,
+    Votes,
 };
 pub use error::{Error, Result};
 pub use manifest::{A2AManifest, ConversationTurn, ManifestFlags};
