@@ -51,34 +51,34 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Basic Consensus Example ===\n");
 
     // Create three agents with high confidence
-    let agents = vec![
-        Arc::new(SimpleAgent {
-            name: "Agent A".to_string(),
-            response: "The answer is 42".to_string(),
-            confidence: 0.90,
-        }),
-        Arc::new(SimpleAgent {
-            name: "Agent B".to_string(),
-            response: "The answer is 42".to_string(),
-            confidence: 0.85,
-        }),
-        Arc::new(SimpleAgent {
-            name: "Agent C".to_string(),
-            response: "The answer is 42".to_string(),
-            confidence: 0.88,
-        }),
-    ];
+    let agent_a = Arc::new(SimpleAgent {
+        name: "Agent A".to_string(),
+        response: "The answer is 42".to_string(),
+        confidence: 0.90,
+    });
+
+    let agent_b = Arc::new(SimpleAgent {
+        name: "Agent B".to_string(),
+        response: "The answer is 42".to_string(),
+        confidence: 0.85,
+    });
+
+    let agent_c = Arc::new(SimpleAgent {
+        name: "Agent C".to_string(),
+        response: "The answer is 42".to_string(),
+        confidence: 0.88,
+    });
 
     println!("Created 3 agents:");
-    for agent in &agents {
-        println!("  - {} (confidence: {:.2})", agent.name(), agent.confidence);
-    }
+    println!("  - {} (confidence: {:.2})", agent_a.name(), 0.90);
+    println!("  - {} (confidence: {:.2})", agent_b.name(), 0.85);
+    println!("  - {} (confidence: {:.2})", agent_c.name(), 0.88);
     println!();
 
     // Create consensus engine with default configuration
     // Default threshold: 0.85
     // Default max rounds: 3
-    let engine = ConsensusEngine::new(ConsensusConfig::default(), agents);
+    let mut engine = ConsensusEngine::with_agents(agent_a, agent_b, agent_c);
 
     println!("Running consensus with query: \"What is the answer?\"\n");
 
@@ -95,13 +95,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Show individual agent responses
     println!("\n=== Agent Responses ===");
-    if let Some(ref pathos) = outcome.agent_0_response {
+    if let Some(ref pathos) = outcome.pathos_response {
         println!("Agent A: {:.2} confidence", pathos.confidence);
     }
-    if let Some(ref logos) = outcome.agent_1_response {
+    if let Some(ref logos) = outcome.logos_response {
         println!("Agent B: {:.2} confidence", logos.confidence);
     }
-    if let Some(ref ethos) = outcome.agent_2_response {
+    if let Some(ref ethos) = outcome.ethos_response {
         println!("Agent C: {:.2} confidence", ethos.confidence);
     }
 

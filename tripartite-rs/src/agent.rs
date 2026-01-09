@@ -295,6 +295,58 @@ impl Default for AgentConfig {
     }
 }
 
+// ============================================================================
+// Blanket Implementations for Smart Pointers
+// ============================================================================
+
+/// Blanket implementation for Arc<T> where T implements Agent
+#[async_trait]
+impl<T: Agent + ?Sized> Agent for std::sync::Arc<T> {
+    fn name(&self) -> &str {
+        self.as_ref().name()
+    }
+
+    fn role(&self) -> &str {
+        self.as_ref().role()
+    }
+
+    async fn process(&self, input: AgentInput) -> Result<AgentOutput> {
+        self.as_ref().process(input).await
+    }
+
+    fn is_ready(&self) -> bool {
+        self.as_ref().is_ready()
+    }
+
+    fn model(&self) -> &str {
+        self.as_ref().model()
+    }
+}
+
+/// Blanket implementation for Box<T> where T implements Agent
+#[async_trait]
+impl<T: Agent + ?Sized> Agent for Box<T> {
+    fn name(&self) -> &str {
+        self.as_ref().name()
+    }
+
+    fn role(&self) -> &str {
+        self.as_ref().role()
+    }
+
+    async fn process(&self, input: AgentInput) -> Result<AgentOutput> {
+        self.as_ref().process(input).await
+    }
+
+    fn is_ready(&self) -> bool {
+        self.as_ref().is_ready()
+    }
+
+    fn model(&self) -> &str {
+        self.as_ref().model()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

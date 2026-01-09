@@ -9,9 +9,11 @@ description = "Core orchestration engine for SuperInstance AI"
 
 [dependencies]
 # Workspace crates
-synesis-privacy.workspace = true
 synesis-models.workspace = true
 synesis-knowledge.workspace = true
+
+# External crates (privox = synesis-privacy extracted)
+privox.workspace = true
 
 # Async
 tokio.workspace = true

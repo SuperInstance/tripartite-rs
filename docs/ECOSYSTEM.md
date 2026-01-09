@@ -42,11 +42,11 @@ The SuperInstance ecosystem consists of modular, reusable tools that work togeth
 | **cloud-synapse** | Durable Object for session state | TypeScript | MIT | In Development |
 | **cloud-worker** | Edge compute & API gateway | TypeScript | MIT | In Development |
 
-### Standalone Tools (Planned)
+### Standalone Tools
 
 | Tool | Description | Use Case | Status |
 |------|-------------|----------|--------|
-| **privox** | Standalone privacy proxy CLI | Redact sensitive data in any workflow | Planned |
+| **privox** | Privacy proxy and redaction engine (extracted from synesis-privacy) | Redact sensitive data in any workflow | Ready to Publish |
 | **knowledge-vault** | Standalone vector database CLI | Local semantic search | Planned |
 | **tripartite-rs** | Agent consensus library | Build multi-agent systems | Planned |
 
@@ -60,30 +60,30 @@ The SuperInstance ecosystem consists of modular, reusable tools that work togeth
 graph TD
     CLI[synesis-cli] --> Core[synesis-core]
     CLI --> Knowledge[synesis-knowledge]
-    CLI --> Privacy[synesis-privacy]
+    CLI --> Privox[privox]
     CLI --> Models[synesis-models]
     CLI --> Cloud[synesis-cloud]
 
-    Core --> Privacy
+    Core --> Privox
     Core --> Knowledge
     Core --> Models
 
-    Cloud --> Privacy
+    Cloud --> Privox
     Cloud --> Core
 
-    Knowledge --> Privacy
+    Knowledge --> Privox
 
-    Privacy -.-> Models
+    Privox -.-> Models
 ```
 
 ### External Dependencies
 
 | Tool | Key Dependencies | Why |
 |------|------------------|-----|
-| **synesis-core** | tokio, serde, async-trait | Async runtime, serialization |
-| **synesis-privacy** | regex, rusqlite, uuid | Pattern matching, token vault |
-| **synesis-knowledge** | rusqlite, notify, unicode-segmentation | Database, file watching |
-| **synesis-cloud** | quinn, rustls, rcgen | QUIC protocol, TLS |
+| **synesis-core** | tokio, serde, async-trait, privox | Async runtime, serialization, privacy |
+| **privox** | regex, rusqlite, uuid | Pattern matching, token vault |
+| **synesis-knowledge** | rusqlite, notify, unicode-segmentation, privox | Database, file watching, privacy |
+| **synesis-cloud** | quinn, rustls, rcgen, privox | QUIC protocol, TLS, privacy |
 | **synesis-models** | sysinfo, dirs | System detection |
 
 ---
@@ -96,7 +96,7 @@ graph TD
 
 - **[SuperInstance AI](https://github.com/SuperInstance/Tripartite1)** - Main project using all tools
   - Uses synesis-core for agent orchestration
-  - Uses synesis-privacy for data redaction
+  - Uses privox for data redaction
   - Uses synesis-knowledge for RAG
   - Uses synesis-cloud for cloud connectivity
 
@@ -113,16 +113,18 @@ graph TD
 Combine privacy proxy with knowledge vault for secure RAG:
 
 ```rust
-use synesis_privacy::PrivacyProxy;
+use privox::{Redactor, TokenVault};
 use synesis_knowledge::KnowledgeVault;
 
 // Redact before indexing
-let redacted = privacy.redact(&document).await?;
-vault.index(redacted, metadata).await?;
+let vault = TokenVault::in_memory()?;
+let mut redactor = Redactor::new(Default::default(), vault)?;
+let redacted = redactor.redact(&document, session_id)?;
+knowledge.index(redacted.redacted_text, metadata).await?;
 
 // Search and re-inflate
-let results = vault.search(query).await?;
-let restored = privacy.reinflate(&results).await?;
+let results = knowledge.search(query).await?;
+let restored = redactor.reinflate(&results)?;
 ```
 
 **Use cases**: Private codebases, confidential documents
@@ -187,10 +189,10 @@ let model = if hardware.has_gpu && results.len() > 100 {
 
 | For | Use This Stack |
 |-----|----------------|
-| **Privacy-focused chatbot** | synesis-core + synesis-privacy + llama.cpp |
-| **Code search** | synesis-knowledge + synesis-privacy + SQLite-VSS |
+| **Privacy-focused chatbot** | synesis-core + privox + llama.cpp |
+| **Code search** | synesis-knowledge + privox + SQLite-VSS |
 | **Local assistant** | synesis-core + synesis-models + synesis-knowledge |
-| **Hybrid system** | synesis-cloud + synesis-core + synesis-privacy |
+| **Hybrid system** | synesis-cloud + synesis-core + privox |
 
 ---
 
@@ -199,7 +201,7 @@ let model = if hardware.has_gpu && results.len() > 100 {
 ### By Use Case
 
 - **"I want to build an AI agent"** → Start with [synesis-core](https://github.com/SuperInstance/Tripartite1/tree/main/crates/synesis-core)
-- **"I need to redact sensitive data"** → Use [synesis-privacy](https://github.com/SuperInstance/Tripartite1/tree/main/crates/synesis-privacy)
+- **"I need to redact sensitive data"** → Use [privox](https://github.com/SuperInstance/privox) (standalone) or [synesis-privacy](https://github.com/SuperInstance/Tripartite1/tree/main/crates/synesis-privacy) (within SuperInstance)
 - **"I want semantic search"** → Try [synesis-knowledge](https://github.com/SuperInstance/Tripartite1/tree/main/crates/synesis-knowledge)
 - **"I need cloud connectivity"** → Check [synesis-cloud](https://github.com/SuperInstance/Tripartite1/tree/main/crates/synesis-cloud)
 - **"I want everything"** → Use [synesis-cli](https://github.com/SuperInstance/Tripartite1)
@@ -273,6 +275,9 @@ Preview: [![SuperInstance Ecosystem](https://img.shields.io/badge/SuperInstance-
 - Added dependency graphs
 - Documented integration patterns
 - Created ecosystem badge
+- **Extracted privox as standalone tool** from synesis-privacy
+- Updated all references from synesis-privacy to privox
+- SuperInstance now uses privox as external dependency
 
 ---
 

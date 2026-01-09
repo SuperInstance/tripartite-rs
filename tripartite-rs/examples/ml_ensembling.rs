@@ -77,23 +77,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("  - {}: predicts '{}' with {:.2} confidence", nn_model.name, nn_model.prediction, nn_model.confidence);
     println!();
 
-    let models = vec![rf_model, svm_model, nn_model];
-
     // Configure consensus for ML ensemble
     // Single round is typical for ML (no revision)
     let config = ConsensusConfig {
         threshold: 0.85,  // 85% confidence required
         max_rounds: 1,    // Single round (no revision for ML)
-        weights: AgentWeights::uniform(),  // Equal weight for all models
+        weights: AgentWeights::default(),  // Default weights
     };
 
     println!("Ensemble Configuration:");
     println!("  - Threshold: {:.0}", config.threshold * 100.0);
     println!("  - Max Rounds: {} (ML ensembles typically use single round)", config.max_rounds);
-    println!("  - Weights: Uniform (all models equal)");
+    println!("  - Weights: Default");
     println!();
 
-    let engine = ConsensusEngine::new(config, models);
+    let mut engine = ConsensusEngine::new(config, rf_model, svm_model, nn_model);
 
     println!("Running ensemble on input: \"Free money!!!\"\n");
 

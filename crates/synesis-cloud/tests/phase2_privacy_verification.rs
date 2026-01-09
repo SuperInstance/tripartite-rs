@@ -2,7 +2,7 @@
 //!
 //! Ensures privacy proxy works correctly with cloud communication
 
-use synesis_privacy::{Redactor, RedactorConfig, TokenVault};
+use privox::{Redactor, RedactorConfig, TokenVault};
 use synesis_cloud::escalation::types::{EscalationRequest, EscalationContext};
 
 #[test]

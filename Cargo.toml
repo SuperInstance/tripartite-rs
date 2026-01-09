@@ -8,6 +8,9 @@ members = [
     "crates/synesis-knowledge",
     "crates/synesis-cloud",
 ]
+exclude = [
+    "privox",
+]
 
 [workspace.package]
 version = "0.1.0"
@@ -87,6 +90,9 @@ synesis-privacy = { path = "crates/synesis-privacy" }
 synesis-models = { path = "crates/synesis-models" }
 synesis-knowledge = { path = "crates/synesis-knowledge" }
 synesis-cloud = { path = "crates/synesis-cloud" }
+
+# External crates (path dependencies during development)
+privox = { path = "privox" }
 
 [profile.release]
 opt-level = 3

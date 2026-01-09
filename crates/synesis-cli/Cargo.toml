@@ -14,9 +14,11 @@ path = "src/main.rs"
 [dependencies]
 # Workspace crates
 synesis-core.workspace = true
-synesis-privacy.workspace = true
 synesis-models.workspace = true
 synesis-knowledge.workspace = true
+
+# External crates (privox = synesis-privacy extracted)
+privox.workspace = true
 
 # Async
 tokio.workspace = true

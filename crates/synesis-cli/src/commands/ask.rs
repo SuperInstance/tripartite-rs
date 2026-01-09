@@ -124,8 +124,8 @@ pub async fn run(args: AskArgs, config: &Config) -> anyhow::Result<()> {
 fn initialize_redactor(
     _config: &Config,
     _session_id: &str,
-) -> anyhow::Result<synesis_privacy::Redactor> {
-    use synesis_privacy::{Redactor, RedactorConfig, TokenVault};
+) -> anyhow::Result<privox::Redactor> {
+    use privox::{Redactor, RedactorConfig, TokenVault};
 
     // Create in-memory vault for this session
     let vault = TokenVault::in_memory()
@@ -141,9 +141,9 @@ fn initialize_redactor(
 /// Redact sensitive information from the query
 fn redact_query(
     query: &str,
-    redactor: &mut synesis_privacy::Redactor,
+    redactor: &mut privox::Redactor,
     session_id: &str,
-) -> anyhow::Result<(String, synesis_privacy::RedactionResult)> {
+) -> anyhow::Result<(String, privox::RedactionResult)> {
     let redacted = redactor.redact(query, session_id);
     Ok((redacted.redacted_text.clone(), redacted))
 }
@@ -175,7 +175,7 @@ async fn run_council(
 /// Reinflate tokens in the response
 fn reinflate_response(
     response: &str,
-    _redactor: &mut synesis_privacy::Redactor,
+    _redactor: &mut privox::Redactor,
 ) -> anyhow::Result<String> {
     // For now, the response stays redacted since reinflate needs to access the vault
     // which is handled internally by the redactor
@@ -184,7 +184,7 @@ fn reinflate_response(
 
 /// Clean up session tokens from vault
 fn cleanup_session(
-    redactor: &mut synesis_privacy::Redactor,
+    redactor: &mut privox::Redactor,
     session_id: &str,
 ) -> anyhow::Result<()> {
     // Clear the in-memory vault after use
@@ -215,10 +215,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_redact_query_passthrough() {
-        use synesis_privacy::TokenVault;
+        use privox::TokenVault;
         let vault = TokenVault::in_memory();
-        let mut redactor = synesis_privacy::Redactor::new(
-            synesis_privacy::RedactorConfig::default(),
+        let mut redactor = privox::Redactor::new(
+            privox::RedactorConfig::default(),
             vault.unwrap(),
         )
         .unwrap();

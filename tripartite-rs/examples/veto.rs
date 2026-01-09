@@ -6,7 +6,7 @@
 //! - Critical for safety-critical applications
 
 use tripartite::{
-    Agent, ConsensusEngine, ConsensusConfig, Verdict, AgentInput, AgentOutput, AgentWeights,
+    Agent, ConsensusEngine, ConsensusConfig, ConsensusVote, AgentInput, AgentOutput, AgentWeights,
 };
 use async_trait::async_trait;
 use std::sync::Arc;
@@ -17,31 +17,31 @@ struct SafetyAgent;
 #[async_trait]
 impl Agent for SafetyAgent {
     async fn process(&self, input: AgentInput) -> Result<AgentOutput, tripartite::Error> {
-        let query = input.manifest.prompt.to_lowercase();
+        let query = input.manifest.query.to_lowercase();
 
         // Check for dangerous keywords
         let dangerous_keywords = vec!["bomb", "hack", "steal", "illegal"];
         let is_dangerous = dangerous_keywords.iter().any(|kw| query.contains(kw));
 
         if is_dangerous {
-            // VETO the request
+            // VETO the request (vote no with 100% confidence)
             return Ok(AgentOutput::new(
                 "Safety",
                 "Request blocked: Dangerous content detected".to_string(),
                 1.0,  // 100% confidence in veto
             )
-            .with_verdict(Verdict::Veto)
-            .with_reasoning("Query contains prohibited dangerous keywords".to_string()));
+            .with_vote(ConsensusVote::new("Safety", false, 1.0)
+                .with_reasoning("Query contains prohibited dangerous keywords".to_string())));
         }
 
-        // Approve safe requests
+        // Approve safe requests (vote yes with 100% confidence)
         Ok(AgentOutput::new(
             "Safety",
             "Request approved".to_string(),
             1.0,
         )
-        .with_verdict(Verdict::Approved)
-        .with_reasoning("No safety concerns detected".to_string()))
+        .with_vote(ConsensusVote::new("Safety", true, 1.0)
+            .with_reasoning("No safety concerns detected".to_string())))
     }
 
     fn name(&self) -> &str {
@@ -71,7 +71,7 @@ impl Agent for RegularAgent {
     async fn process(&self, input: AgentInput) -> Result<AgentOutput, tripartite::Error> {
         Ok(AgentOutput::new(
             &self.name,
-            format!("Response to: {}", input.manifest.prompt),
+            format!("Response to: {}", input.manifest.query),
             0.95,  // High confidence
         ))
     }
@@ -100,15 +100,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Safety Veto Example ===\n");
 
     // Create agents: 2 regular + 1 safety agent
-    let agents = vec![
-        Arc::new(RegularAgent {
-            name: "Agent 1".to_string(),
-        }),
-        Arc::new(RegularAgent {
-            name: "Agent 2".to_string(),
-        }),
-        Arc::new(SafetyAgent),  // Last agent (agent_2) has veto power
-    ];
+    let agent_1 = Arc::new(RegularAgent {
+        name: "Agent 1".to_string(),
+    });
+
+    let agent_2 = Arc::new(RegularAgent {
+        name: "Agent 2".to_string(),
+    });
+
+    let safety_agent = Arc::new(SafetyAgent);  // Last agent (ethos) has veto power
 
     println!("Created 3 agents:");
     println!("  - Agent 1: Regular response agent");
@@ -120,10 +120,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = ConsensusConfig {
         threshold: 0.85,
         max_rounds: 1,
-        weights: AgentWeights::uniform(),
+        weights: AgentWeights::default(),
     };
 
-    let engine = ConsensusEngine::new(config, agents);
+    let mut engine = ConsensusEngine::new(config, agent_1, agent_2, safety_agent);
 
     // Test 1: Safe query
     println!("=== Test 1: Safe Query ===");

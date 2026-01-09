@@ -73,29 +73,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("  - Junior Engineer: {:.2} confidence (20% weight)", junior.confidence);
     println!();
 
-    let experts = vec![senior, mid_level, junior];
-
     // Configure consensus with custom weights
     let config = ConsensusConfig {
         threshold: 0.90,  // Higher threshold (90%)
         max_rounds: 3,
         weights: AgentWeights {
-            agent_0: 0.50,  // Senior gets 50% weight
-            agent_1: 0.30,  // Mid-level gets 30% weight
-            agent_2: 0.20,  // Junior gets 20% weight
+            pathos: 0.50,  // Senior gets 50% weight
+            logos: 0.30,  // Mid-level gets 30% weight
+            ethos: 0.20,  // Junior gets 20% weight
         },
     };
 
     println!("Consensus Configuration:");
     println!("  - Threshold: {:.0}", config.threshold * 100.0);
     println!("  - Max Rounds: {}", config.max_rounds);
-    println!("  - Agent 0 (Senior) Weight: {:.0}", config.weights.agent_0 * 100.0);
-    println!("  - Agent 1 (Mid) Weight: {:.0}", config.weights.agent_1 * 100.0);
-    println!("  - Agent 2 (Junior) Weight: {:.0}", config.weights.agent_2 * 100.0);
+    println!("  - Agent 1 (Senior) Weight: {:.0}", config.weights.pathos * 100.0);
+    println!("  - Agent 2 (Mid) Weight: {:.0}", config.weights.logos * 100.0);
+    println!("  - Agent 3 (Junior) Weight: {:.0}", config.weights.ethos * 100.0);
     println!();
 
     // Create engine and run consensus
-    let engine = ConsensusEngine::new(config, experts);
+    let mut engine = ConsensusEngine::new(config, senior, mid_level, junior);
 
     println!("Running consensus: \"Should we deploy to production?\"\n");
 

@@ -68,41 +68,41 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=== Multi-Round Revision Example ===\n");
 
     // Create three agents that all need 2 rounds to converge
-    let agents = vec![
-        Arc::new(RevisingAgent {
-            name: "Agent 1".to_string(),
-            round_needed: 2,
-        }),
-        Arc::new(RevisingAgent {
-            name: "Agent 2".to_string(),
-            round_needed: 2,
-        }),
-        Arc::new(RevisingAgent {
-            name: "Agent 3".to_string(),
-            round_needed: 2,
-        }),
-    ];
+    let agent_1 = Arc::new(RevisingAgent {
+        name: "Agent 1".to_string(),
+        round_needed: 2,
+    });
+
+    let agent_2 = Arc::new(RevisingAgent {
+        name: "Agent 2".to_string(),
+        round_needed: 2,
+    });
+
+    let agent_3 = Arc::new(RevisingAgent {
+        name: "Agent 3".to_string(),
+        round_needed: 2,
+    });
 
     println!("Created 3 revising agents:");
-    for agent in &agents {
-        println!("  - {} (needs {} rounds to converge)", agent.name, agent.round_needed);
-    }
+    println!("  - Agent 1 (needs {} rounds to converge)", agent_1.round_needed);
+    println!("  - Agent 2 (needs {} rounds to converge)", agent_2.round_needed);
+    println!("  - Agent 3 (needs {} rounds to converge)", agent_3.round_needed);
     println!();
 
     // Configure consensus with uniform weights
     let config = ConsensusConfig {
         threshold: 0.85,  // 85% threshold
         max_rounds: 5,    // Allow up to 5 rounds
-        weights: AgentWeights::uniform(),  // Equal weights
+        weights: AgentWeights::default(),  // Default weights
     };
 
     println!("Consensus Configuration:");
     println!("  - Threshold: {:.0}", config.threshold * 100.0);
     println!("  - Max Rounds: {}", config.max_rounds);
-    println!("  - Weights: Uniform (equal for all agents)");
+    println!("  - Weights: Default");
     println!();
 
-    let engine = ConsensusEngine::new(config, agents);
+    let mut engine = ConsensusEngine::new(config, agent_1, agent_2, agent_3);
 
     println!("Running consensus: \"Complex query requiring analysis\"\n");
 

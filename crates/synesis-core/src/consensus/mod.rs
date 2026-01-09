@@ -32,7 +32,7 @@
 //! ```rust,no_run
 //! use synesis_core::consensus::{ConsensusEngine, ConsensusConfig};
 //! use synesis_core::agents::{PathosAgent, LogosAgent, EthosAgent};
-//! use synesis_privacy::{Redactor, TokenVault};
+//! use privox::{Redactor, TokenVault};
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! // Create agents
@@ -90,7 +90,7 @@ use crate::manifest::A2AManifest;
 use crate::SynesisResult as CoreResult;
 
 // Privacy integration
-use synesis_privacy::{RedactionStats as PrivacyRedactionStats, Redactor};
+use privox::{RedactionStats as PrivacyRedactionStats, Redactor};
 
 /// Consensus engine configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]

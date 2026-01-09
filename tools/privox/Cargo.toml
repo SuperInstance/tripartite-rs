@@ -1,0 +1,85 @@
+[workspace]
+# This is a standalone workspace for testing privox CI/CD
+
+[package]
+name = "privox"
+version = "0.1.0"
+edition = "2021"
+authors = ["SuperInstance Team"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/SuperInstance/privox"
+homepage = "https://github.com/SuperInstance/privox"
+documentation = "https://docs.rs/privox"
+keywords = ["privacy", "redaction", "pii", "security", "gdpr"]
+categories = ["cryptography", "data-structures", "api-bindings"]
+readme = "README.md"
+description = """
+Privacy proxy and redaction engine for Rust. Detects 18+ patterns of sensitive information,
+reversibly redacts data, and stores original values locally. Zero dependencies on frameworks.
+"""
+
+[lib]
+name = "privox"
+path = "src/lib.rs"
+
+[dependencies]
+# TODO: During extraction, these will be direct dependencies
+# For now, use synesis-privacy as the source
+synesis-privacy = { path = "../../crates/synesis-privacy" }
+
+# Async runtime
+tokio = { version = "1.40", optional = true, features = ["sync", "rt-multi-thread"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Logging
+tracing = "0.1"
+
+# Pattern matching
+regex = "1.10"
+
+# Caching
+once_cell = "1.19"
+
+# Cryptography
+sha2 = "0.10"
+hex = "0.4"
+
+# IDs
+uuid = { version = "1.10", features = ["v4", "serde"] }
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Database for token vault
+rusqlite = { version = "0.31", features = ["bundled"] }
+
+[dev-dependencies]
+tokio = { version = "1.40", features = ["full"] }
+tokio-test = "0.4"
+tempfile = "3.10"
+criterion = "0.5"
+
+[features]
+default = []
+async = ["tokio"]
+
+[[bench]]
+name = "redaction"
+harness = false
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.bench]
+inherits = "release"
+debug = true

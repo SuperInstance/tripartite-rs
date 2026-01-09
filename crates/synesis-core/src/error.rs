@@ -259,22 +259,22 @@ impl From<synesis_knowledge::KnowledgeError> for SynesisError {
     }
 }
 
-impl From<synesis_privacy::PrivacyError> for SynesisError {
-    fn from(err: synesis_privacy::PrivacyError) -> Self {
+impl From<privox::PrivacyError> for SynesisError {
+    fn from(err: privox::PrivacyError) -> Self {
         match err {
-            synesis_privacy::PrivacyError::PatternError(msg) => {
+            privox::PrivacyError::PatternError(msg) => {
                 SynesisError::PatternError(msg)
             }
-            synesis_privacy::PrivacyError::VaultError(msg) => {
+            privox::PrivacyError::VaultError(msg) => {
                 SynesisError::TokenVaultError(msg)
             }
-            synesis_privacy::PrivacyError::TokenNotFound(msg) => {
+            privox::PrivacyError::TokenNotFound(msg) => {
                 SynesisError::TokenNotFound(msg)
             }
-            synesis_privacy::PrivacyError::DatabaseError(err) => {
+            privox::PrivacyError::DatabaseError(err) => {
                 SynesisError::Sqlite(err)
             }
-            synesis_privacy::PrivacyError::Internal(msg) => {
+            privox::PrivacyError::Internal(msg) => {
                 SynesisError::Internal(msg)
             }
         }
