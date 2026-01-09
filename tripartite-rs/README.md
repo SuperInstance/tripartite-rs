@@ -11,7 +11,7 @@
 ## Quick Start
 
 ```rust
-use tripartite::{Agent, ConsensusEngine, ConsensusConfig};
+use tripartite::{Agent, ConsensusEngine, ConsensusConfig, AgentInput, AgentOutput};
 use async_trait::async_trait;
 
 struct MyAgent {
@@ -21,7 +21,12 @@ struct MyAgent {
 
 #[async_trait]
 impl Agent for MyAgent {
-    async fn process(&self, input: AgentInput) -> Result<AgentOutput, Error> {
+    fn name(&self) -> &str { &self.name }
+    fn role(&self) -> &str { "Custom agent" }
+    fn is_ready(&self) -> bool { true }
+    fn model(&self) -> &str { "my-model" }
+
+    async fn process(&self, _input: AgentInput) -> tripartite::Result<AgentOutput> {
         Ok(AgentOutput::new(
             &self.name,
             "Response".to_string(),
@@ -30,14 +35,13 @@ impl Agent for MyAgent {
     }
 }
 
-// Create consensus engine with 3 agents
-let agents = vec![
-    Arc::new(MyAgent { name: "Agent1".to_string(), confidence: 0.9 }),
-    Arc::new(MyAgent { name: "Agent2".to_string(), confidence: 0.85 }),
-    Arc::new(MyAgent { name: "Agent3".to_string(), confidence: 0.95 }),
-];
+// Create 3 agents
+let agent1 = std::sync::Arc::new(MyAgent { name: "Agent1".to_string(), confidence: 0.9 });
+let agent2 = std::sync::Arc::new(MyAgent { name: "Agent2".to_string(), confidence: 0.85 });
+let agent3 = std::sync::Arc::new(MyAgent { name: "Agent3".to_string(), confidence: 0.95 });
 
-let engine = ConsensusEngine::new(ConsensusConfig::default(), agents);
+// Create consensus engine
+let mut engine = ConsensusEngine::with_agents(agent1, agent2, agent3);
 let outcome = engine.run("What is the meaning of life?").await?;
 
 println!("Consensus: {}", outcome.is_consensus());
