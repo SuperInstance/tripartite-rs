@@ -46,10 +46,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         warp::path("health").map(|| warp::reply::json(&serde_json::json!({"status": "ok"})));
 
     // Redact endpoint
+    let redactor1 = redactor.clone();
     let redact_route = warp::post()
         .and(warp::path("redact"))
         .and(warp::body::json())
-        .and(warp::any().map(move || redactor.clone()))
+        .and(warp::any().map(move || redactor1.clone()))
         .map(|req: RedactRequest, redactor: Arc<Mutex<Redactor>>| {
             // Lock and redact
             let mut r = match redactor.lock() {
@@ -64,21 +65,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 },
             };
 
-            match r.redact(&req.text, &req.session_id) {
-                Ok(result) => warp::reply::with_status(
-                    warp::reply::json(&RedactResponse {
-                        redacted_text: result.redacted_text,
-                        stats: result.stats,
-                    }),
-                    warp::http::StatusCode::OK,
-                ),
-                Err(e) => warp::reply::with_status(
-                    warp::reply::json(&ErrorResponse {
-                        error: e.to_string(),
-                    }),
-                    warp::http::StatusCode::INTERNAL_SERVER_ERROR,
-                ),
-            }
+            let result = r.redact(&req.text, &req.session_id);
+            warp::reply::with_status(
+                warp::reply::json(&RedactResponse {
+                    redacted_text: result.redacted_text,
+                    stats: result.stats,
+                }),
+                warp::http::StatusCode::OK,
+            )
         });
 
     // Reinflate endpoint
@@ -105,9 +99,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             };
 
             let restored = r.reinflate(&req.text);
-            warp::reply::json(&serde_json::json!({
-                "restored_text": restored
-            }))
+            warp::reply::with_status(
+                warp::reply::json(&serde_json::json!({
+                    "restored_text": restored
+                })),
+                warp::http::StatusCode::OK,
+            )
         });
 
     // Combine routes

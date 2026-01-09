@@ -35,7 +35,7 @@ fn ask_llm_protected(question: &str) -> Result<String, Box<dyn std::error::Error
     println!();
 
     // Step 2: Redact sensitive data
-    let redacted = redactor.redact(question, "session-1")?;
+    let redacted = redactor.redact(question, "session-1");
     println!("🛡️  Redacted question: {}", redacted.redacted_text);
     println!("   Redacted {} items", redacted.stats.patterns_redacted);
     println!();

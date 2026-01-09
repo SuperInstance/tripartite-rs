@@ -1,9 +1,9 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use synesis_privacy::{Redactor, RedactorConfig, TokenVault};
+use privox::{Redactor, RedactorConfig, TokenVault};
 
 fn bench_basic_redaction(c: &mut Criterion) {
     let vault = TokenVault::in_memory().unwrap();
-    let redactor = Redactor::new(RedactorConfig::default(), vault).unwrap();
+    let mut redactor = Redactor::new(RedactorConfig::default(), vault).unwrap();
 
     let text = "Contact: john@example.com or call 555-1234";
 
@@ -14,7 +14,7 @@ fn bench_basic_redaction(c: &mut Criterion) {
 
 fn bench_multiple_patterns(c: &mut Criterion) {
     let vault = TokenVault::in_memory().unwrap();
-    let redactor = Redactor::new(RedactorConfig::default(), vault).unwrap();
+    let mut redactor = Redactor::new(RedactorConfig::default(), vault).unwrap();
 
     let text = "Email: john@example.com, Phone: 555-1234, SSN: 123-45-6789, IP: 192.168.1.1";
 
