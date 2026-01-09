@@ -1,0 +1,22 @@
+# Rust
+/target/
+/debug/
+**/*.rs.bk
+*.pdb
+Cargo.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test data
+/tests/tmp/
+/tests/temp/
+
+# Benchmark results
+*.txt
+benches/criterion/
