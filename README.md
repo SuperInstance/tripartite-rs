@@ -470,3 +470,145 @@ Built with amazing open-source projects:
 **Version**: 0.2.0 | **Status**: Production-Ready (Phase 1) | **Tests**: 250+ Passing ✅
 
 *Last Updated: 2026-01-07*
+
+---
+
+## 📐 Tripartite Protocol Architecture
+
+### The Three-Agent Model
+
+The tripartite consensus system draws inspiration from Aristotle's rhetorical triangle. Each agent embodies a distinct reasoning modality:
+
+```
+                    ┌─────────────────────────────┐
+                    │      User Query             │
+                    └──────────────┬──────────────┘
+                                   │
+              ┌────────────────────┼────────────────────┐
+              │                    │                    │
+       ┌──────▼──────┐     ┌──────▼──────┐     ┌──────▼──────┐
+       │   PATHOS    │     │   LOGOS     │     │   ETHOS     │
+       │  (Intent)   │     │  (Logic)    │     │  (Truth)    │
+       ├─────────────┤     ├─────────────┤     ├─────────────┤
+       │ • Goal      │     │ • Method    │     │ • Safety     │
+       │ • Context   │     │ • Steps     │     │ • Accuracy   │
+       │ • Nuance    │     │ • Feasibility│    │ • Ethics     │
+       │ • Emotion   │     │ • Logic     │     │ • Constraints│
+       └──────┬──────┘     └──────┬──────┘     └──────┬──────┘
+              │                   │                    │
+              └───────────────────┼────────────────────┘
+                                  │
+                        ┌─────────▼─────────┐
+                        │ Consensus Engine  │
+                        │ Weighted Voting   │
+                        │ Revision Rounds   │
+                        │ Confidence Score  │
+                        └─────────┬─────────┘
+                                  │
+                    ┌─────────────▼──────────────┐
+                    │ Unified Response           │
+                    │ + Agent Contributions      │
+                    │ + Confidence Level         │
+                    │ + Processing Time          │
+                    └────────────────────────────┘
+```
+
+### Mathematical Foundation
+
+#### Consensus Scoring Algorithm
+
+The consensus engine uses a weighted voting mechanism with veto power:
+
+```
+C = (w_P · S_P + w_L · S_L + w_E · S_E) / (w_P + w_L + w_E)
+
+Where:
+  C  = consensus score [0, 1]
+  S_P = Pathos score (intent alignment)
+  S_L = Logos score (logical coherence)
+  S_E = Ethos score (safety & accuracy)
+  w_P = 0.3 (Pathos weight)
+  w_L = 0.4 (Logos weight — logic dominant)
+  w_E = 0.5 (Ethos weight — has veto power)
+```
+
+**Veto Mechanism**: If `S_E < threshold_veto` (default: 0.5), the response is blocked regardless of other scores. This ensures safety-first behavior.
+
+#### Multi-Round Negotiation
+
+When initial consensus `C < threshold` (default: 0.90), agents enter revision rounds:
+
+```
+Round 1: Independent assessment → C₁ = 0.72 (below threshold)
+Round 2: Agents see each other's assessments → C₂ = 0.85
+Round 3: Targeted revision of disagreements → C₃ = 0.93 ✓ CONSENSUS
+```
+
+Maximum revision rounds: 5 (configurable). Falls back to safest partial response if consensus not reached.
+
+#### Confidence Calibration
+
+```
+Final Confidence = C_consensus × (1 - decay(t)) × quality_factor
+
+Where:
+  decay(t)   = 1 - e^(-λt)     (time-based freshness)
+  quality     = token_precision × source_reliability
+  λ          = 0.001            (decay constant)
+```
+
+### Rust Crate Architecture
+
+```
+tripartite-rs/
+├── crates/
+│   ├── synesis-core/        # Core types, consensus engine, agent trait
+│   │   ├── src/agent.rs     # Agent trait definition & implementations
+│   │   ├── src/consensus.rs # Weighted voting, revision rounds
+│   │   ├── src/manifest.rs  # Hardware manifest & capability detection
+│   │   └── src/error.rs     # Error types
+│   ├── synesis-privacy/     # Tokenization, redaction, vault
+│   ├── synesis-knowledge/   # RAG, embeddings, vector search, chunking
+│   ├── synesis-models/      # Model loading, inference abstraction
+│   ├── synesis-cloud/       # QUIC tunnel, mTLS, cloud escalation (Phase 2)
+│   └── synesis-cli/         # CLI binary (ask, knowledge, config, status)
+├── tools/
+│   └── privox/              # Standalone privacy proxy library
+├── knowledge-vault-rs/      # Standalone knowledge vault library
+├── cloud/                   # Cloudflare Workers for cloud mesh (Phase 2)
+└── manifests/               # Hardware capability manifests
+    ├── minimal.json          # 8GB RAM, CPU-only
+    ├── standard.json         # 16GB RAM, CPU-only
+    ├── apple-m2.json         # Apple Silicon M2
+    ├── rtx-4050-laptop.json  # NVIDIA RTX 4050 Laptop
+    └── jetson-orin-nano.json # NVIDIA Jetson Orin Nano
+```
+
+### Key API Reference
+
+```rust
+use synesis_core::{Agent, ConsensusEngine, Council};
+
+// Create a tripartite council
+let mut council = Council::new(config);
+
+// Process a query
+let result = council.process(query).await?;
+
+// Inspect individual agent contributions
+println!("Pathos: {:?}", result.agent_contributions.pathos);
+println!("Logos:  {:?}", result.agent_contributions.logos);
+println!("Ethos:  {:?}", result.agent_contributions.ethos);
+println!("Consensus: {:.2}", result.consensus_score);
+println!("Rounds: {}", result.revision_rounds);
+
+// Access the knowledge vault
+use synesis_knowledge::Vault;
+let vault = Vault::open("./data/vault.db")?;
+vault.add_document("./my-project/")?;
+let results = vault.search("How does auth work?")?;
+```
+
+---
+
+<img src="callsign1.jpg" width="128" alt="callsign">
